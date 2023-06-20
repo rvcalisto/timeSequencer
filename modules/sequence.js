@@ -13,7 +13,7 @@ const Sequence = new class {
     this.begun = false // on first run and restore 
     this.begunTime = null
     this.consumedTime = 0
-    this.#initListeners()
+    this.#initEvents()
   }
 
   /**
@@ -169,7 +169,7 @@ const Sequence = new class {
     console.log(customSignal) 
   }
 
-  #initListeners() {
+  #initEvents() {
 
     // skip to next timer, execution or end sequence
     addEventListener('timerFinished', () => {

@@ -32,7 +32,7 @@ class Timer extends HTMLElement {
 
     this.#updateElement()
     this.#updateEditor()
-    this.#initInputs()
+    this.#initEvents()
   }
 
   disconnectedCallback() {
@@ -42,7 +42,7 @@ class Timer extends HTMLElement {
   /**
    * Initialize input event listeners.
    */
-  #initInputs() {
+  #initEvents() {
     this.onclick = () => this.select()
 
     const [ addBtn, delBtn ] = this.shadowRoot.getElementById('spawnButtons').children

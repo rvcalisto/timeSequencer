@@ -13,7 +13,7 @@ const Overlay = new class {
     this.#ctrlBtnPrev = document.getElementById('ctrlPrev')
     this.#ctrlBtnToggle = document.getElementById('ctrlToggle')
     this.#ctrlBtnAdd = document.getElementById('ctrlAdd')
-    this.initEventListeners()
+    this.#initEvents()
 
     this.#checkinTime = 0
     this.#checkoutTime = 0
@@ -166,7 +166,7 @@ const Overlay = new class {
     this.#historyDiv.append(deltaEntry)
   }
 
-  initEventListeners() {
+  #initEvents() {
     // update timer info
     addEventListener('timerTick', (ev) => {
       const { currentTime, label } = ev.detail
