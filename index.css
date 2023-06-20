@@ -136,7 +136,7 @@ html, * {
 }
 
 .option {
-  background: #222222;
+  background: #181717;
   border-radius: 4px;
   margin: 4px;
   display: flex;
@@ -173,27 +173,7 @@ html, * {
   transform: scale(.9);
 }
 
-.timerBox {
-  height: 6rem;
-  width: 6rem;
-  position: relative;
-  user-select: none;
-}
-.timerBox img {
-  height: inherit;
-  image-rendering: -webkit-optimize-contrast;
-  position: absolute;
-  filter: drop-shadow(4px 4px 0px #555555);
-}
-.timerBox p {
-  margin: 0px auto;
-  color: whitesmoke;
-  font-family: var(--appFont);
-  font-weight: bold;
-  text-align: center;
-  text-shadow: 0px 0px 6px black, 
-  0px 0px 6px black;
-}
+
 
 timer-item {
   font-size: small;
@@ -201,24 +181,12 @@ timer-item {
   filter: brightness(0.5);
   transition: .1s;
 }
-timer-item:hover {
+/* timer-item:hover {
   cursor: pointer;
-}
+} */
 .selectedTimer {
   transform: scale(1);
   filter: brightness(1);
-}
-.onTimerBtn {
-  position: absolute;
-  top:0;
-  right: 0;
-  height: 2rem;
-  width: 2rem;
-  border-radius: 2rem;
-  margin: -0.5rem;
-  z-index: 1;
-  background: #adadad;
-  border-color: #6a6a6a;
 }
 
 #overlay {

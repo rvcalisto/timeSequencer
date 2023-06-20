@@ -24,14 +24,24 @@ class Timer extends HTMLElement {
   }
 
   connectedCallback() {
-    const template = document.getElementById('timerItem')
+    const template = document.getElementById('timerTemplate')
     const fragment = template.content
-    this.appendChild(fragment.cloneNode(true))
-    this.updateElement()
-    
+
+    this.attachShadow({ mode: "open" })
+    this.shadowRoot.appendChild(fragment.cloneNode(true))
+
+    this.#updateElement()
+    this.#updateEditor()
+    this.#initInputs()
+  }
+
+  /**
+   * Initialize input event listeners.
+   */
+  #initInputs() {
     this.onclick = () => this.select()
 
-    const [ addBtn, delBtn ] = this.getElementsByTagName('button')
+    const [ addBtn, delBtn ] = this.shadowRoot.getElementById('spawnButtons').children
     addBtn.onclick = (e) => {
       e.stopPropagation()
       const timerItem = document.createElement('timer-item')
@@ -43,6 +53,74 @@ class Timer extends HTMLElement {
       e.stopPropagation()
       this.removeItem()
     }
+
+    const inputType = this.shadowRoot.getElementById('editorType')
+    inputType.onchange = () => {
+      this.type = inputType.value
+
+      // set time to zero if counting up, 5s otherwise
+      if (this.type == 'Count-Up') this.time = 0 
+      else if (this.time == 0) this.time = 5
+      this.#updateEditor()
+
+      this.#updateElement()
+    }
+
+    const labelInput = this.shadowRoot.getElementById('editorLabel')
+    labelInput.oninput = () => {
+      this.label = labelInput.value
+      this.#updateElement()
+    }
+
+
+    const updateTimeByValue = (value) => {
+      const newTime = this.time + value
+
+      // clamp time based on type
+      if (this.type == 'Count-Up') this.time = Math.max(0, 0)
+      else this.time = Math.max(1, newTime)
+
+      this.#updateElement()
+      this.#updateEditor()
+    }
+
+
+    const editorHour = this.shadowRoot.getElementById('editorHour')
+    editorHour.addEventListener('wheel', (e) => {
+      updateTimeByValue(e.deltaY < 0 ? 3600 : -3600)
+    })
+
+    const editorMin = this.shadowRoot.getElementById('editorMin')
+    editorMin.addEventListener('wheel', (e) => {
+      updateTimeByValue(e.deltaY < 0 ? 60 : -60)
+    })
+
+    const editorSec = this.shadowRoot.getElementById('editorSec')
+    editorSec.addEventListener('wheel', (e) => {
+      updateTimeByValue(e.deltaY < 0 ? 1 : -1)
+    })
+  }
+
+  /**
+   * Update editor inputs with current timer data.
+   */
+  #updateEditor() {
+    const typeInput = this.shadowRoot.getElementById('editorType')
+    const labelInput = this.shadowRoot.getElementById('editorLabel')
+
+    typeInput.value = this.type
+    labelInput.value = this.label
+
+
+    const [ hh, mm, ss ] = Timer.secondsToHMS(this.time).split(':')
+    const editorHour = this.shadowRoot.getElementById('editorHour')
+    editorHour.textContent = hh
+    const editorMin = this.shadowRoot.getElementById('editorMin')
+    editorMin.textContent = mm
+    const editorSec = this.shadowRoot.getElementById('editorSec')
+    editorSec.textContent = ss
+
+    Sequence.updateEstimatedTime()
   }
 
   /** 
@@ -113,28 +191,28 @@ class Timer extends HTMLElement {
   /**
    * Update label elements to reflect property values.
    */
-  updateElement() {
-    const [ label, type, time ] = this.getElementsByTagName('p')
+  #updateElement() {
+    const timerInfo = this.shadowRoot.getElementById('timerInfo')
+    const [ label, type, time ] = timerInfo.children
     label.textContent = this.label
     type.textContent = this.type
     time.textContent = Timer.secondsToHMSshort(this.time)
 
-    const img = this.getElementsByTagName('img')[0]
-    img.src = `icons/clock${this.type == 'Count-Up' ? 'Up' : 'Down'}.webp`
+    const icon = this.type == 'Count-Up' ? 'clockUp' : 'clockDown'
+    timerInfo.style.backgroundImage = `url(icons/${icon}.webp)`
   }
 
   /**
    * Select timer element and sync properties with Editor.
    */
   select() {
-    const ev = new CustomEvent('timerSelect', { detail: {
-      item: this
-    }})
-    dispatchEvent(ev)
-
     const elem = document.getElementsByClassName('selectedTimer')[0]
-    if (elem) elem.classList.remove('selectedTimer')
+    if (elem) {
+      elem.classList.remove('selectedTimer')
+      elem.shadowRoot.getElementById('timerInputBox').style.display = 'none'
+    }
     this.classList.add('selectedTimer')
+    this.shadowRoot.getElementById('timerInputBox').style.display = ''
   }
 
   /**
