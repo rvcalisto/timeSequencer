@@ -3,18 +3,48 @@
  */
 const Sequence = new class {
 
-  #execution; #currentIdx; #sequenceTitle
+  #totalExecutions; currentExecution; #currentIdx
 
   constructor() {
     this.#currentIdx = 0
-    this.executionSet = 1
-    this.#execution = 1
+    this.#totalExecutions = 1
+    this.currentExecution = 1
     this.running = false
     this.begun = false // on first run and restore 
     this.begunTime = null
     this.consumedTime = 0
-    this.#sequenceTitle = document.getElementById('sequenceTitle')
     this.#initListeners()
+  }
+
+  /**
+   * Sequence title.
+   * @param {String} value
+   */
+  set title(value) {
+    const titleInput = document.getElementById('sequenceTitle')
+    titleInput.textContent = value
+  }
+
+  get title() {
+    const titleInput = document.getElementById('sequenceTitle')
+    return titleInput.textContent
+  }
+
+  /**
+   * Times the sequence should be executed.
+   * @param {Number} value
+   */
+  set totalExecutions(value) {
+    this.#totalExecutions = Math.max(1, value)
+
+    // update DOM elements
+    const executeCount = document.getElementById('executeCount')
+    executeCount.textContent = `x${Sequence.#totalExecutions}`
+    this.updateEstimatedTime()
+  }
+
+  get totalExecutions() {
+    return this.#totalExecutions
   }
 
   /**
@@ -91,10 +121,10 @@ const Sequence = new class {
     }
     
     // not next, previous sequence
-    else if (this.#execution > 1) {
+    else if (this.currentExecution > 1) {
       this.stop()
       this.#currentIdx = Timer.all.length -1
-      this.#execution--
+      this.currentExecution--
       Timer.all.forEach(timer => timer.restore())
       this.start()
     }
@@ -107,7 +137,7 @@ const Sequence = new class {
    */
   restore() {
     this.#currentIdx = 0
-    this.#execution = 1
+    this.currentExecution = 1
     Timer.all.forEach(timer => timer.restore())
     this.begun = false
     this.begunTime = null
@@ -126,8 +156,8 @@ const Sequence = new class {
     const ev = new CustomEvent(customSignal, {detail: {
       currentTimer: this.#currentIdx,
       totalTimer: Timer.all.length -1,
-      currentExecution: this.#execution,
-      totalExecution: this.executionSet,
+      currentExecution: this.currentExecution,
+      totalExecution: this.#totalExecutions,
       elapsedTime: this.elapsedTime,
       consumedTime: this.consumedTime
     }})
@@ -140,7 +170,7 @@ const Sequence = new class {
     // skip to next timer, execution or end sequence
     addEventListener('timerFinished', () => {
       const isLastTimer = this.#currentIdx == (Timer.all.length - 1)
-      const isLastExecution = this.#execution == this.executionSet
+      const isLastExecution = this.currentExecution == this.#totalExecutions
 
       this.#checkoutTimer()
 
@@ -152,11 +182,11 @@ const Sequence = new class {
 
       // move execution
       if (isLastTimer) {
-        this.#execution++
+        this.currentExecution++
         this.#currentIdx = 0
         Timer.all.forEach(timer => timer.restore())
         this.#signal() // (repeat)
-        console.log(`sequenceRepeat: ${this.#execution}/${this.executionSet}`)
+        console.log(`sequenceRepeat: ${this.currentExecution}/${this.#totalExecutions}`)
         this.start()
         return
       }
@@ -170,12 +200,8 @@ const Sequence = new class {
 
     // change sequence execution count
     const executeFrame = document.getElementById('executeFrame')
-    const executeCount = document.getElementById('executeCount')
     executeFrame.addEventListener('wheel', (ev) => {
-      const delta = ev.deltaY < 0 ? 1 : -1
-      Sequence.executionSet = Math.max(1, Sequence.executionSet + delta)
-      executeCount.textContent = `x${Sequence.executionSet}`
-      this.updateEstimatedTime()
+      this.totalExecutions += ev.deltaY < 0 ? 1 : -1
     })
 
     // save current sequence and repopulate SequenceList
@@ -204,15 +230,14 @@ const Sequence = new class {
     let timeInSecs = 0
     Timer.all.forEach(timer => timeInSecs += timer.time)
 
-    estimatedTime.textContent = Timer.secondsToHMSshort( timeInSecs * this.executionSet )
+    estimatedTime.textContent = Timer.secondsToHMSshort( timeInSecs * this.#totalExecutions )
   }
 
   /**
    * Store all timer items as a named sequence in localStorage.
    */
   storeSequence() {
-    const saveName = this.#sequenceTitle.textContent
-    if (!saveName) return
+    if (!this.title) return
 
     let sequenceStorage = JSON.parse(localStorage.getItem('sequenceStorage'))
     if (!sequenceStorage) sequenceStorage = {}
@@ -226,13 +251,13 @@ const Sequence = new class {
       })
     }
 
-    sequenceStorage[saveName] = {
+    sequenceStorage[this.title] = {
       timers: timerArray,
-      executions: this.executionSet
+      executions: this.totalExecutions
     }
 
     localStorage.setItem('sequenceStorage', JSON.stringify(sequenceStorage))
-    console.log(`saved timer items as ${saveName}`);
+    console.log(`saved timer items as ${this.title}`);
   }
 
   /**
@@ -265,15 +290,12 @@ const Sequence = new class {
       document.getElementById('sequencer').appendChild(newTimer)
     }
 
-    // restore and update executionSet
-    this.executionSet = executions
-    const executeCount = document.getElementById('executeCount')
-    executeCount.textContent = `x${Sequence.executionSet}`
-    this.updateEstimatedTime()
+    // restore and update totalExecutions
+    this.totalExecutions = executions
     
     // select last
     Timer.all[Timer.all.length - 1].select()
-    this.#sequenceTitle.textContent = loadName
+    this.title = loadName
     console.log(`loaded timer items from ${loadName}`)
   }
 }
