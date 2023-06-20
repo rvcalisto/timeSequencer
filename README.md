@@ -13,4 +13,5 @@ A simple web app to compose timer routines and log time usage.
 
 ### **Usage**
 
-Just download the archive and open `index.html` with your browser, no server needed.
+- [Access it on GitHub Pages](https://rvcalisto.github.io/timeSequencer/)
+- Or download it as a zip and open `index.html` with your browser.
