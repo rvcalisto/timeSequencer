@@ -206,13 +206,16 @@ class Timer extends HTMLElement {
    * Select timer element and sync properties with Editor.
    */
   select() {
+    // hide previous selected timer inputBox
     const elem = document.getElementsByClassName('selectedTimer')[0]
     if (elem) {
       elem.classList.remove('selectedTimer')
-      elem.shadowRoot.getElementById('timerInputBox').style.display = 'none'
+      elem.shadowRoot.getElementById('timerInputBox').style.width = '0'
     }
+    
+    // and show ours ;)
     this.classList.add('selectedTimer')
-    this.shadowRoot.getElementById('timerInputBox').style.display = ''
+    this.shadowRoot.getElementById('timerInputBox').style.width = ''
   }
 
   /**

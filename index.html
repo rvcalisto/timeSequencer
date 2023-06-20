@@ -54,6 +54,9 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      overflow: hidden;
+      width: 12rem;
+      transition: .15s;
     }
 
     .timerBox p {
@@ -111,7 +114,7 @@
       <p>Type</p>
       <p>Time</p>
     </div>
-    <div id="timerInputBox" style="display: none;">
+    <div id="timerInputBox" style="width: 0;">
       <div class="option">
         <p>Type</p>
         <select id="editorType" class="fullWidth" name="type">
