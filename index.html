@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self'" />
+  <title>Time Sequencer</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="shortcut icon" href="icons/icon.png" type="image/x-icon">
+
+  <!-- not 'real' modules to allow 'file://' protocol -->
+  <script defer src="modules/sequence.js"></script>
+  <script defer src="modules/sequenceList.js"></script>
+  <script defer src="modules/timer.js"></script>
+  <script defer src="modules/editor.js"></script>
+  <script defer src="modules/overlay.js"></script>
+  <script defer src="index.js"></script>
+</head>
+
+<template id="timerItem">
+  <div class="timerBox">
+    <button class="greenBtn onTimerBtn">➕</button>
+    <button class="greenBtn onTimerBtn" style="margin: 1.4rem -1.7rem;">➖</button>
+    <img src="icons/clock.webp">
+    <div style="position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; flex-direction: column;">
+      <p>Label</p>
+      <p>Type</p>
+      <p>Time</p>
+    </div>
+  </div>
+</template>
+
+<body>
+  <!-- overlay -->
+  <div id="overlay" style="display: none; opacity: 0;">
+    <button id="overlayCloseBtn">❌</button>
+    <div style="display: flex; height: 100%; width: 100%;">
+      <div id="overlayHist"></div>
+      <div id="overlayDisplay">
+        <div class="overlayInfo">
+          <p>⏱️</p>
+          <p>Label</p>
+          <p style="font-size: 2vh;" >seq: 1/1 timer: 1/1</p>
+          <p>Timer</p>
+          <p style="font-size: 2vh;">0s</p>
+        </div>
+        <!-- controls -->
+        <div style="margin: 5vh;">
+          <button id="ctrlPrev" class="ctrlBtn">⏮️</button>
+          <button id="ctrlToggle" class="ctrlBtn">⏸️</button>
+          <button id="ctrlNext" class="ctrlBtn">⏭️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <main style="padding: 1rem;">
+    <!-- title and stored sequence list -->
+    <div class="divisor">
+      <h2 id="sequenceTitle" spellcheck="false" contenteditable="true">Sequence</h2>
+      <h2 class="titleStyle" style="user-select: none;">📝</h2>
+      <h2 class="titleStyle"id="estimatedTime" style="user-select: none;">0s</h2>
+      <div id="sequenceList"></div>
+      <button id="sequenceSave" class="greenBtn" style="margin: auto 0px;">save</button>
+    </div>
+    <!-- sequence and execution count -->
+    <div class="divisor" style="height: fit-content; justify-content: space-between;">
+      <div id="sequencer"></div>
+      <div id="executeFrame" title="Scroll to increment/decrement">
+        <p style="font-size: small;">Execute</p>
+        <p id="executeCount">x1</p>
+      </div>
+    </div>
+    <!-- editor -->
+    <div class="divisor">
+      <div id="editor">
+        <div class="option">
+          <p>Type</p>
+          <select id="editorType" class="fullWidth" name="type">
+            <option>Count-Up</option>
+            <option>Count-Down</option>
+          </select>
+        </div>
+        <div class="option">
+          <p>Label</p>
+          <input class="fullWidth" type="text" name="label" id="editorLabel" placeholder="Timer Label">
+        </div>
+        <div class="option">
+          <p id="editorHour" style="cursor: ns-resize;">HH</p>
+          <p style="cursor: default;">:</p>
+          <p id="editorMin" style="cursor: ns-resize;">MM</p>
+          <p style="cursor: default;">:</p>
+          <p id="editorSec" style="cursor: ns-resize;">SS</p>
+        </div>
+        <div class="option">
+          <button id="startSequenceBtn" class="greenBtn fullWidth" style="height: 3rem;">Start</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
