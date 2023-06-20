@@ -217,13 +217,18 @@ const Sequence = new class {
     let sequenceStorage = JSON.parse(localStorage.getItem('sequenceStorage'))
     if (!sequenceStorage) sequenceStorage = {}
 
-    sequenceStorage[saveName] = []
+    const timerArray = []
     for (const timerItem of Timer.all) {
-      sequenceStorage[saveName].push({
+      timerArray.push({
         label: timerItem.label,
         type: timerItem.type,
         time: timerItem.time,
       })
+    }
+
+    sequenceStorage[saveName] = {
+      timers: timerArray,
+      executions: this.executionSet
     }
 
     localStorage.setItem('sequenceStorage', JSON.stringify(sequenceStorage))
@@ -246,9 +251,11 @@ const Sequence = new class {
       element.remove()
     }
 
-    // restore saved items
-    for (const storedTimer of sequenceStorage[loadName]) {
-      const { label, type, time } = storedTimer
+    const { timers, executions } = sequenceStorage[loadName]
+    
+    // restore saved timers
+    for (const timer of timers) {
+      const { label, type, time } = timer
 
       const newTimer = document.createElement('timer-item')
       newTimer.label = label
@@ -257,6 +264,12 @@ const Sequence = new class {
 
       document.getElementById('sequencer').appendChild(newTimer)
     }
+
+    // restore and update executionSet
+    this.executionSet = executions
+    const executeCount = document.getElementById('executeCount')
+    executeCount.textContent = `x${Sequence.executionSet}`
+    this.updateEstimatedTime()
     
     // select last
     Timer.all[Timer.all.length - 1].select()
