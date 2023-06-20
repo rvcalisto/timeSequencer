@@ -280,7 +280,7 @@ class Timer extends HTMLElement {
     m = m ? `${String(m).padStart(1,0)}m ` : ''
     s = s ? `${String(s).padStart(1,0)}s` : ''
 
-    return `${h}${m}${s}`
+    return `${h}${m}${s}` || '0s'
   }
 
 }

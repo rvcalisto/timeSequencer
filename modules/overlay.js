@@ -66,7 +66,7 @@ const Overlay = new class {
     if (time) timeElm.textContent = time
 
     const consumedTime = Timer.secondsToHMSshort(Sequence.consumedTime)
-    bottomElm.textContent = `Time Consumed: ${consumedTime ? consumedTime : '0s'}`
+    bottomElm.textContent = `Time Consumed: ${consumedTime}`
   }
 
   /**
