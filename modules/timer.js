@@ -35,6 +35,10 @@ class Timer extends HTMLElement {
     this.#initInputs()
   }
 
+  disconnectedCallback() {
+    Sequence.updateEstimatedTime()
+  }
+
   /**
    * Initialize input event listeners.
    */
@@ -212,7 +216,7 @@ class Timer extends HTMLElement {
       elem.classList.remove('selectedTimer')
       elem.shadowRoot.getElementById('timerInputBox').style.width = '0'
     }
-    
+
     // and show ours ;)
     this.classList.add('selectedTimer')
     this.shadowRoot.getElementById('timerInputBox').style.width = ''
