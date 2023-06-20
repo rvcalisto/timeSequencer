@@ -77,7 +77,7 @@ const Overlay = new class {
    */
   notify(text, icon, force = false) {
     if (document.hasFocus() && !force) return
-    new Notification('Time Sequencer', {
+    new Notification(`${Sequence.title}`, {
       body: text,
       icon: icon ? icon : 'icons/icon.png'
     })
