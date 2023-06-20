@@ -79,7 +79,7 @@ const Overlay = new class {
     if (document.hasFocus() && !force) return
     new Notification('Time Sequencer', {
       body: text,
-      icon: icon ? icon : 'icons/clock.webp'
+      icon: icon ? icon : 'icons/icon.png'
     })
   }
 
