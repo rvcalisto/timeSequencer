@@ -46,8 +46,7 @@ html, * {
   align-content: center;
   align-items: center;
   padding: 12px;
-  gap: 24px;
-  /* overflow-x: auto; */
+  gap: .5rem;
   flex-wrap: wrap;
 }
 
@@ -71,15 +70,20 @@ html, * {
   gap: 4px;
 }
 
+#sequenceParams {
+  display: flex; gap: 0.2rem; align-items: center;
+}
+
 #executeFrame {
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  padding: 2vh 4vh;
+  padding: 1vh 4vh;
   background: #444444;
   border-radius: 8px;
   margin: auto 8px;
   user-select: none;
+  gap: .5rem;
+  cursor: ns-resize;
 }
 
 #executeFrame p {
@@ -87,93 +91,33 @@ html, * {
   margin: auto;
   font-family: var(--appFont);
   font-weight: bold;
-  font-size: 8vh;
 }
 
-.divisor {
-  width: auto;
-  height: auto;
-  display: flex;
-  gap: 4px;
-  align-items: center;
+#startSequenceBtn {
+  height: 3rem;
+  width: 20vw;
+  margin-left: auto;
 }
 
-#timerBase {
-  width: 100%;
-  height: fit-content;
-  background: #545454;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  padding: 4px;
-}
-
-#timerBase button {
-  width: auto;
-  background: #323232;
-  color: whitesmoke;
-  font-weight: bold;
-  font-family: var(--appFont);
-  padding: 4px;
+button {
+  padding: 0.2rem;
   border: none;
-  border-radius: 4px;
-}
-
-#editor {
-  margin: auto;
-  font-family: var(--appFont);
-  color: whitesmoke;
-  background: #323232;
-  border-radius: 8px;
-}
-
-.fullWidth {
-  width: 100%;
-  font-weight: bold;
-  background: inherit;
-  color: inherit;
-  border: none;
-}
-
-.option {
-  background: #181717;
-  border-radius: 4px;
-  margin: 4px;
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-}
-
-.option p {
-  padding: 0px 5px;
-  margin: 2vh;
-  text-align: center;
-  font-weight: bold;
-  user-select: none;
-}
-
-.greenBtn {
-  padding: 2px;
-  border: solid;
-  border-left: none;
-  border-top: none;
-  border-bottom-color: darkgreen;
-  border-right-color: darkgreen;
+  border-bottom: solid darkgreen;
   border-radius: 4px;
   background: seagreen;
   font-weight: bold;
   color: whitesmoke;
   transition: .2s;
 }
-.greenBtn:hover {
+
+button:hover {
   filter: brightness(.9);
   cursor: pointer;
 }
-.greenBtn:active {
+
+button:active {
   transform: scale(.9);
 }
-
-
 
 timer-item {
   font-size: small;
@@ -181,9 +125,7 @@ timer-item {
   filter: brightness(0.5);
   transition: .1s;
 }
-/* timer-item:hover {
-  cursor: pointer;
-} */
+
 .selectedTimer {
   transform: scale(1);
   filter: brightness(1);
@@ -258,6 +200,7 @@ timer-item {
   margin: 1rem;
   padding: 0px;
 }
+
 #overlayCloseBtn:hover {
   cursor: pointer;
 }
@@ -270,6 +213,7 @@ timer-item {
   text-align: center;
   user-select: none;
 }
+
 .overlayInfo p {
   margin: 0px;
 }
@@ -284,13 +228,16 @@ timer-item {
   margin: 1rem;
   transition: .2s;
 }
+
 .ctrlBtn:hover {
   transform: scale(1.1);
   cursor: pointer;
 }
+
 .ctrlBtn:active:enabled {
   transform: scale(.9);
 }
+
 .ctrlBtn:disabled {
   opacity: 50%;
 }

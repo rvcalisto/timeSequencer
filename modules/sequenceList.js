@@ -6,12 +6,6 @@ const SequenceList = new class {
   constructor() {
     this.listElement = document.getElementById('sequenceList')
     this.populate()
-    
-    const sequenceSaveBtn = document.getElementById('sequenceSave')
-    sequenceSaveBtn.onclick = () => {
-      Sequence.storeSequence()
-      this.populate()
-    }
   }
 
   /**
@@ -48,9 +42,9 @@ const SequenceList = new class {
     for (const entry of Object.keys(this.getList())) {
       const btn = document.createElement('button')
       btn.textContent = entry
-      btn.className = 'greenBtn'
       btn.style.background = '#333333'
       btn.style.borderColor = '#111111'
+      btn.title = 'Load sequence. Right-click to remove'
 
       btn.onclick = () => Sequence.loadSequence(entry)
 

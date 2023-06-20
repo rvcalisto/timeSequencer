@@ -177,6 +177,21 @@ const Sequence = new class {
       executeCount.textContent = `x${Sequence.executionSet}`
       this.updateEstimatedTime()
     })
+
+    // save current sequence and repopulate SequenceList
+    const sequenceSaveBtn = document.getElementById('sequenceSave')
+    sequenceSaveBtn.onclick = () => {
+      Sequence.storeSequence()
+      SequenceList.populate()
+    }
+
+    // display overlay and start sequence
+    const startSequenceBtn = document.getElementById('startSequenceBtn')
+    startSequenceBtn.onclick = () => {
+      Sequence.restore()
+      Overlay.toggle(true)
+      Sequence.start()
+    }
   }
 
   /**

@@ -12,7 +12,6 @@
   <script defer src="modules/sequence.js"></script>
   <script defer src="modules/sequenceList.js"></script>
   <script defer src="modules/timer.js"></script>
-  <script defer src="modules/editor.js"></script>
   <script defer src="modules/overlay.js"></script>
   <script defer src="index.js"></script>
 </head>
@@ -163,30 +162,19 @@
     </div>
   </div>
   <main style="padding: 1rem;">
-    <!-- title and stored sequence list -->
-    <div class="divisor">
-      <h2 id="sequenceTitle" spellcheck="false" contenteditable="true">Sequence</h2>
+    <div id="sequenceList"></div>
+    <div id="sequenceParams">
+      <h2 id="sequenceTitle" spellcheck="false" contenteditable="true" title="Sequence name, click to edit">Sequence</h2>
       <h2 class="titleStyle" style="user-select: none;">📝</h2>
-      <h2 class="titleStyle"id="estimatedTime" style="user-select: none;">0s</h2>
-      <div id="sequenceList"></div>
-      <button id="sequenceSave" class="greenBtn" style="margin: auto 0px;">save</button>
-    </div>
-    <!-- sequence and execution count -->
-    <div class="divisor" style="height: fit-content; justify-content: space-between;">
-      <div id="sequencer"></div>
       <div id="executeFrame" title="Scroll to increment/decrement">
-        <p style="font-size: small;">Execute</p>
+        <p>Execute</p>
         <p id="executeCount">x1</p>
       </div>
+      <button id="sequenceSave" title="Save sequence"">Save</button>
+      <h2 class="titleStyle" id="estimatedTime" style="user-select: none;" title="Estimated duration">0s</h2>
+      <button id="startSequenceBtn" title="Start sequence">Start</button>
     </div>
-    <!-- editor -->
-    <div class="divisor">
-      <div id="editor">
-        <div class="option">
-          <button id="startSequenceBtn" class="greenBtn fullWidth" style="height: 3rem; width: 20vw;">Start</button>
-        </div>
-      </div>
-    </div>
+    <div id="sequencer"></div>
   </main>
 </body>
 </html>
