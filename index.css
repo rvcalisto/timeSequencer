@@ -84,7 +84,7 @@ main {
 #executeFrame {
   display: flex;
   justify-content: center;
-  padding: 1vh 4vh;
+  padding: .5rem 1rem;
   background: #444444;
   border-radius: 8px;
   margin: auto 8px;
