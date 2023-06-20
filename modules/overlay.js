@@ -32,6 +32,7 @@ const Overlay = new class {
       this.#ctrlBtnPrev.disabled = true
       this.#ctrlBtnNext.disabled = false
       this.#ctrlBtnToggle.disabled = false
+      this.#ctrlBtnAdd.disabled = false
     } else {
       document.title = 'Time Sequencer'
       this.#audioPlayer.pause()
@@ -220,6 +221,7 @@ const Overlay = new class {
       this.#ctrlBtnPrev.disabled = true
       this.#ctrlBtnNext.disabled = true
       this.#ctrlBtnToggle.disabled = true
+      this.#ctrlBtnAdd.disabled = true
     })
 
     // close overlay
