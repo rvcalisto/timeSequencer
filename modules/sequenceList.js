@@ -2,6 +2,7 @@
  * List of stored sequences.
  */
 const SequenceList = new class {
+  #storageItem = 'sequenceStorage'
 
   constructor() {
     this.listElement = document.getElementById('sequenceList')
@@ -10,11 +11,21 @@ const SequenceList = new class {
 
   /**
    * Get stored sequence list object from localStorage.
+   * @returns {{}} Sequence object.
    */
-  getList() {
-    let sequenceStorage = JSON.parse(localStorage.getItem('sequenceStorage'))
-    if (!sequenceStorage) sequenceStorage = {}
-    return sequenceStorage
+  getStorageObject() {
+    let storageObject = JSON.parse(localStorage.getItem(this.#storageItem))
+    if (!storageObject) storageObject = {}
+    return storageObject
+  }
+
+  /**
+   * Store sequences object in localStorage. Update list.
+   * @param {{}} storageObject Object with sequences.
+   */
+  setStorageObject(storageObject) {
+    localStorage.setItem(this.#storageItem, JSON.stringify(storageObject))
+    this.populate()
   }
 
   /**
@@ -22,24 +33,26 @@ const SequenceList = new class {
    * @param {String} entry Stored sequence name.
    */
   removeFromList(entry) {
-    let sequenceStorage = JSON.parse(localStorage.getItem('sequenceStorage'))
-    if (!sequenceStorage || !sequenceStorage[entry]) {
-      console.log(`${entry} doesn't exist in sequenceStorage`)
+    let sequences = this.getStorageObject()
+
+    if (sequences[entry]) {
+      delete sequences[entry]
+      this.setStorageObject(sequences)
+      console.log(`deleted ${entry} from sequenceStorage`)
       return
     }
 
-    delete sequenceStorage[entry]
-    localStorage.setItem('sequenceStorage', JSON.stringify(sequenceStorage))
-    console.log(`deleted ${entry} from sequenceStorage`)
+    console.log(`${entry} doesn't exist in sequenceStorage`)
   }
 
   /**
-   * Populate list with timer elements from localStorage sequences.
+   * Populate list with sequences from localStorage.
    */
   populate() {
+    const sequenceTitles = Object.keys( this.getStorageObject() )
     this.listElement.textContent = ''
 
-    for (const entry of Object.keys(this.getList())) {
+    for (const entry of sequenceTitles) {
       const btn = document.createElement('button')
       btn.textContent = entry
       btn.style.background = '#333333'
@@ -50,7 +63,6 @@ const SequenceList = new class {
 
       btn.oncontextmenu = () => {
         this.removeFromList(entry)
-        btn.remove()
         return false
       }
 
@@ -63,9 +75,7 @@ const SequenceList = new class {
    */
   storeSequence() {
     if (!Sequence.title) return
-
-    let sequenceStorage = JSON.parse(localStorage.getItem('sequenceStorage'))
-    if (!sequenceStorage) sequenceStorage = {}
+    let sequences = this.getStorageObject()
 
     const timerArray = []
     for (const timerItem of Timer.all) {
@@ -76,13 +86,12 @@ const SequenceList = new class {
       })
     }
 
-    sequenceStorage[Sequence.title] = {
+    sequences[Sequence.title] = {
       timers: timerArray,
       executions: Sequence.totalExecutions
     }
 
-    localStorage.setItem('sequenceStorage', JSON.stringify(sequenceStorage))
-    this.populate()
+    this.setStorageObject(sequences)
 
     console.log(`saved timer items as ${Sequence.title}`);
   }
@@ -92,9 +101,9 @@ const SequenceList = new class {
    * @param {String} loadName Stored sequence name.
    */
   loadSequence(loadName) {
-    let sequenceStorage = JSON.parse(localStorage.getItem('sequenceStorage'))
-    if (!sequenceStorage || !sequenceStorage[loadName]) {
-      return console.log(`no items to load from ${loadName}`)
+    let sequences = this.getStorageObject()
+    if (!sequences[loadName]) {
+      return console.log(`no sequence named ${loadName} in storage.`)
     }
 
     // remove current items (iterate backwards to workaround re-indexing)
@@ -103,7 +112,7 @@ const SequenceList = new class {
       element.remove()
     }
 
-    const { timers, executions } = sequenceStorage[loadName]
+    const { timers, executions } = sequences[loadName]
     
     // restore sequence properties and timers
     Sequence.title = loadName
