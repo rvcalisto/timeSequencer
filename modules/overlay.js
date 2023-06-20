@@ -210,7 +210,7 @@ const Overlay = new class {
     // show end screen
     addEventListener('sequenceFinished', (ev) => {
       const { elapsedTime, consumedTime } = ev.detail
-      document.title = `Time Sequencer - Finished`
+      document.title = `${Sequence.title} - Finished`
 
       let elapsed = Timer.secondsToHMSshort(elapsedTime)
       const consumed = Timer.secondsToHMSshort(consumedTime)
