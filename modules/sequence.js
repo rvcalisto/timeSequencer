@@ -206,10 +206,7 @@ const Sequence = new class {
 
     // save current sequence and repopulate SequenceList
     const sequenceSaveBtn = document.getElementById('sequenceSave')
-    sequenceSaveBtn.onclick = () => {
-      Sequence.storeSequence()
-      SequenceList.populate()
-    }
+    sequenceSaveBtn.onclick = () => SequenceList.storeSequence()
 
     // display overlay and start sequence
     const startSequenceBtn = document.getElementById('startSequenceBtn')
@@ -231,71 +228,5 @@ const Sequence = new class {
     Timer.all.forEach(timer => timeInSecs += timer.time)
 
     estimatedTime.textContent = Timer.secondsToHMSshort( timeInSecs * this.#totalExecutions )
-  }
-
-  /**
-   * Store all timer items as a named sequence in localStorage.
-   */
-  storeSequence() {
-    if (!this.title) return
-
-    let sequenceStorage = JSON.parse(localStorage.getItem('sequenceStorage'))
-    if (!sequenceStorage) sequenceStorage = {}
-
-    const timerArray = []
-    for (const timerItem of Timer.all) {
-      timerArray.push({
-        label: timerItem.label,
-        type: timerItem.type,
-        time: timerItem.time,
-      })
-    }
-
-    sequenceStorage[this.title] = {
-      timers: timerArray,
-      executions: this.totalExecutions
-    }
-
-    localStorage.setItem('sequenceStorage', JSON.stringify(sequenceStorage))
-    console.log(`saved timer items as ${this.title}`);
-  }
-
-  /**
-   * Restore all timer items from a named sequence in localStorage.
-   * @param {String} loadName Stored sequence name.
-   */
-  loadSequence(loadName) {
-    let sequenceStorage = JSON.parse(localStorage.getItem('sequenceStorage'))
-    if (!sequenceStorage || !sequenceStorage[loadName]) {
-      return console.log(`no items to load from ${loadName}`)
-    }
-
-    // remove current items (iterate backwards to workaround re-indexing)
-    for (let i = Timer.all.length - 1; i >= 0; i--) {
-      const element = Timer.all[i];
-      element.remove()
-    }
-
-    const { timers, executions } = sequenceStorage[loadName]
-    
-    // restore saved timers
-    for (const timer of timers) {
-      const { label, type, time } = timer
-
-      const newTimer = document.createElement('timer-item')
-      newTimer.label = label
-      newTimer.type = type
-      newTimer.time = Number(time)
-
-      document.getElementById('sequencer').appendChild(newTimer)
-    }
-
-    // restore and update totalExecutions
-    this.totalExecutions = executions
-    
-    // select last
-    Timer.all[Timer.all.length - 1].select()
-    this.title = loadName
-    console.log(`loaded timer items from ${loadName}`)
   }
 }
