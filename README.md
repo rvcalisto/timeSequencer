@@ -1,7 +1,7 @@
 # **TimeSequencer**
 A simple web app to compose timer routines and log time usage.
 
-![Alt text](timeSequencer.png)
+![Alt text](timeSequencer.webp)
 
 ### **Features**
 
