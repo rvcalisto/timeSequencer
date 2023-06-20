@@ -157,7 +157,7 @@ const Sequence = new class {
       currentTimer: this.#currentIdx,
       totalTimer: Timer.all.length -1,
       currentExecution: this.currentExecution,
-      totalExecution: this.#totalExecutions,
+      totalExecution: this.totalExecutions,
       elapsedTime: this.elapsedTime,
       consumedTime: this.consumedTime
     }})

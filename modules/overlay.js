@@ -2,7 +2,7 @@
  * Display timer sequence state on screen, control flow.
  */
 const Overlay = new class {
-  #audioPlayer; #historyDiv; #ctrlBtnNext; #ctrlBtnPrev; #ctrlBtnToggle
+  #audioPlayer; #historyDiv; #ctrlBtnNext; #ctrlBtnPrev; #ctrlBtnToggle; #ctrlBtnAdd
   #checkinTime; #checkoutTime
 
   constructor() {
@@ -12,6 +12,7 @@ const Overlay = new class {
     this.#ctrlBtnNext = document.getElementById('ctrlNext')
     this.#ctrlBtnPrev = document.getElementById('ctrlPrev')
     this.#ctrlBtnToggle = document.getElementById('ctrlToggle')
+    this.#ctrlBtnAdd = document.getElementById('ctrlAdd')
     this.initEventListeners()
 
     this.#checkinTime = 0
@@ -243,6 +244,7 @@ const Overlay = new class {
       Sequence.running ? Sequence.stop() : Sequence.start()
       this.#ctrlBtnToggle.textContent = Sequence.running ? '⏸️' : '⏯️'
     }
+    this.#ctrlBtnAdd.onclick = () => Sequence.totalExecutions += 1
   }
 
 }
