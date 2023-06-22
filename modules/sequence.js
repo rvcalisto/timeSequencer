@@ -227,6 +227,7 @@ const Sequence = new class {
     // display overlay and start sequence
     const startSequenceBtn = document.getElementById('startSequenceBtn')
     startSequenceBtn.onclick = () => {
+      Sequence.restore()
       Overlay.toggle(true)
       Sequence.play()
     }
