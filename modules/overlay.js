@@ -2,21 +2,16 @@
  * Display timer sequence state on screen, control flow.
  */
 const Overlay = new class {
-  #audioPlayer; #historyDiv; #ctrlBtnNext; #ctrlBtnPrev; #ctrlBtnToggle; #ctrlBtnAdd
-  #checkinTime; #checkoutTime
+  #audioPlayer; #ctrlBtnNext; #ctrlBtnPrev; #ctrlBtnToggle; #ctrlBtnAdd
 
   constructor() {
     this.overlayElement = document.getElementById('overlay')
-    this.#historyDiv = document.getElementById('overlayHist')
     this.#audioPlayer = document.createElement('audio')
     this.#ctrlBtnNext = document.getElementById('ctrlNext')
     this.#ctrlBtnPrev = document.getElementById('ctrlPrev')
     this.#ctrlBtnToggle = document.getElementById('ctrlToggle')
     this.#ctrlBtnAdd = document.getElementById('ctrlAdd')
     this.#initEvents()
-
-    this.#checkinTime = 0
-    this.#checkoutTime = 0
   }
 
   /**
@@ -28,7 +23,7 @@ const Overlay = new class {
 
     // reset state
     if (show) {
-      this.#historyDiv.textContent = ''
+      TimerHistory.clear()
       this.#ctrlBtnPrev.disabled = true
       this.#ctrlBtnNext.disabled = false
       this.#ctrlBtnToggle.disabled = false
@@ -83,88 +78,6 @@ const Overlay = new class {
       body: text,
       icon: icon ? icon : 'icons/icon.png'
     })
-  }
-
-  /**
-   * Register timer-start on timer history.
-   */
-  checkinTimer() {
-    this.#checkinTime = Date.now()
-
-    // add deadtime if space between checkin and last checkout
-    if (this.#historyDiv.lastChild && this.#checkinTime != this.#checkoutTime) {
-      this.#addDeadTime(this.#checkoutTime, this.#checkinTime)
-    }
-
-  }
-
-  /**
-   * Register timer-end on timer history.
-   * @param {String} label Timer counter state descriptor.
-   */
-  checkoutTimer(label) {
-    const nextCheckoutTime = Date.now()
-    
-    // if no checkin has been made (checkinTime is -1), add deadtime
-    if (this.#checkinTime === -1 && this.#checkoutTime != nextCheckoutTime) {
-      this.#addDeadTime(this.#checkoutTime, nextCheckoutTime)
-      this.#checkinTime = nextCheckoutTime
-    }
-
-    this.#checkoutTime = nextCheckoutTime
-
-
-    const checkinHour = new Date(this.#checkinTime).toString().split(' ')[4]
-    const checkoutHour = new Date(this.#checkoutTime).toString().split(' ')[4]
-
-    let delta = ( this.#checkoutTime - this.#checkinTime ) / 1000
-    delta = Timer.secondsToHMSshort(delta)
-    const timeSession = `${checkinHour} - ${checkoutHour} (${delta})`
-
-    
-    const timerEntry = document.createElement('p')
-    timerEntry.classList = 'overlayHistItem'
-    timerEntry.textContent = label
-    timerEntry.textContent += `\n${timeSession}`
-    
-    // temporary workaround till a better implementation
-    const icon = !this.nextIcon ? 'timeout' : this.nextIcon
-    timerEntry.setAttribute('icon', icon)
-    this.nextIcon = ''
-
-    this.#checkinTime = -1 // close checkin
-    this.#historyDiv.append(timerEntry)
-    timerEntry.scrollIntoView()
-  }
-
-
-  /**
-   * Register period of inactivity on timer history.
-   * @param {Number} fromDate Start Date value.
-   * @param {Number} toDate End Date value.
-   */
-  #addDeadTime(fromDate, toDate) {
-    const previousEntry = this.#historyDiv.lastElementChild
-    if (!previousEntry) return
-    
-    let delta = ( toDate - fromDate) / 1000
-    delta = Number(delta.toFixed(0))
-
-    const formattedFromTime = new Date(fromDate).toString().split(' ')[4]
-    const formattedToTime = new Date(toDate).toString().split(' ')[4]
-    
-    if (formattedFromTime === formattedToTime) return
-
-    const deltaEntry = document.createElement('p')
-    deltaEntry.classList = 'overlayHistItem'
-    deltaEntry.style.background = 'none'
-    deltaEntry.style.boxShadow = 'none'
-    deltaEntry.setAttribute('icon', 'deadtime')
-
-    const duration = Timer.secondsToHMSshort(delta)
-
-    deltaEntry.textContent = `Dead time\n${formattedFromTime} - ${formattedToTime} (${duration})`
-    this.#historyDiv.append(deltaEntry)
   }
 
   #initEvents() {
@@ -227,23 +140,19 @@ const Overlay = new class {
     // close overlay
     const overlayCloseBtn = document.getElementById('overlayCloseBtn')
     overlayCloseBtn.onclick = () => {
-      Sequence.stop()
       Sequence.restore()
       this.toggle(false)
     }
 
     // sequence control
     this.#ctrlBtnPrev.onclick = () => {
-      this.nextIcon = 'skipPrev'
       Sequence.skip(false)
     }
     this.#ctrlBtnNext.onclick = () => {
-      this.nextIcon = 'skipNext'
       Sequence.skip(true)
     }
     this.#ctrlBtnToggle.onclick = () => {
-      if (Sequence.running) this.nextIcon = 'paused'
-      Sequence.running ? Sequence.stop() : Sequence.start()
+      Sequence.running ? Sequence.pause() : Sequence.play()
       this.#ctrlBtnToggle.textContent = Sequence.running ? '⏸️' : '⏯️'
     }
     this.#ctrlBtnAdd.onclick = () => Sequence.totalExecutions += 1

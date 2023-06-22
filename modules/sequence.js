@@ -3,7 +3,7 @@
  */
 const Sequence = new class {
 
-  #totalExecutions; currentExecution; #currentIdx
+  #totalExecutions; currentExecution; #currentIdx; #checkoutIcon = 'timeout'
 
   constructor() {
     this.#currentIdx = 0
@@ -52,14 +52,15 @@ const Sequence = new class {
   }
 
   /**
-   * Start timer sequence.
+   * play sequence and log deadtime, if any.
    * @returns {Boolean} False on failure.
    */
-  start() {
+  play() {
     const currentTimer = Timer.all[this.#currentIdx]
     if (!currentTimer) return false
 
-    Overlay.checkinTimer()
+    this.#checkoutIcon = 'timeout'
+    TimerHistory.checkinTimer()
 
     currentTimer.start()
     this.running = true
@@ -75,6 +76,16 @@ const Sequence = new class {
   }
 
   /**
+   * Pause sequence and log event.
+   */
+  pause() {
+    this.#stop()
+
+    this.#checkoutIcon = 'paused'
+    this.#checkoutTimer()
+  }
+
+  /**
    * Register current timer end on Overlay timer history with a formatted state message.
    */
   #checkoutTimer() {
@@ -86,18 +97,16 @@ const Sequence = new class {
     `${Timer.secondsToHMSshort(currentTimer.consumedTime)} of ${Timer.secondsToHMSshort(currentTimer.time)}`
     
     const label = `${currentTimer.label}\n${progress}`
-    Overlay.checkoutTimer(label)
+    TimerHistory.checkoutTimer(label, this.#checkoutIcon)
   }
 
   /**
-   * Pause current timer.
+   * Freeze sequence in current state.
    * @returns {Boolean} False on failure.
    */
-  stop() {
+  #stop() {
     const currentTimer = Timer.all[this.#currentIdx]
     if (!currentTimer) return false
-
-    this.#checkoutTimer()
 
     currentTimer.stop()
     this.running = false
@@ -111,6 +120,7 @@ const Sequence = new class {
   skip(next = true) {
     const currentTimer = Timer.all[this.#currentIdx]
     const isFirstTimer = this.#currentIdx == 0
+    this.#checkoutIcon = next ? 'skipNext' : 'skipPrev'
 
     // simple skip
     if (next) {
@@ -119,27 +129,29 @@ const Sequence = new class {
 
     // not next, simple backward
     else if (!isFirstTimer) {
-      this.stop()
+      this.#stop()
       this.#currentIdx--
-      this.start()
+      this.play()
     }
     
     // not next, previous sequence
     else if (this.currentExecution > 1) {
-      this.stop()
+      this.#stop()
       this.#currentIdx = Timer.all.length -1
       this.currentExecution--
       Timer.all.forEach(timer => timer.restore())
-      this.start()
+      this.play()
     }
     
     this.#signal()
   }
 
   /**
-   * Restore sequence and timers to a clean state.
+   * Stop & restore sequence and timers to a clean state.
    */
   restore() {
+    this.#stop()
+
     this.#currentIdx = 0
     this.currentExecution = 1
     Timer.all.forEach(timer => timer.restore())
@@ -191,14 +203,14 @@ const Sequence = new class {
         Timer.all.forEach(timer => timer.restore())
         this.#signal() // (repeat)
         console.log(`sequenceRepeat: ${this.currentExecution}/${this.#totalExecutions}`)
-        this.start()
+        this.play()
         return
       }
 
       // next timer
       this.#currentIdx++
       this.#signal()
-      this.start()
+      this.play()
     })
 
 
@@ -215,9 +227,8 @@ const Sequence = new class {
     // display overlay and start sequence
     const startSequenceBtn = document.getElementById('startSequenceBtn')
     startSequenceBtn.onclick = () => {
-      Sequence.restore()
       Overlay.toggle(true)
-      Sequence.start()
+      Sequence.play()
     }
   }
 
