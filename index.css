@@ -61,6 +61,7 @@ main {
   padding: 0.3rem;
   border-radius: 0.3rem;
   box-shadow: 0px 2px 0px #181818;
+  margin-top: 0.5rem;
 }
 
 #sequenceTitle, .titleStyle {
