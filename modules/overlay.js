@@ -118,6 +118,8 @@ const Overlay = new class {
       this.#ctrlBtnPrev.disabled = currentTimer === 0 || currentTimer === totalTimer
 
       this.updateInfo(null, null, null, seqState)
+
+      this.#ctrlBtnToggle.textContent = Sequence.running ? '⏸️' : '▶️'
     })
 
     // show end screen
@@ -153,7 +155,7 @@ const Overlay = new class {
     }
     this.#ctrlBtnToggle.onclick = () => {
       Sequence.running ? Sequence.pause() : Sequence.play()
-      this.#ctrlBtnToggle.textContent = Sequence.running ? '⏸️' : '⏯️'
+      this.#ctrlBtnToggle.textContent = Sequence.running ? '⏸️' : '▶️'
     }
     this.#ctrlBtnAdd.onclick = () => Sequence.totalExecutions += 1
   }
