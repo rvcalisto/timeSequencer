@@ -39,7 +39,7 @@ const Sequence = new class {
 
     // update DOM elements
     const executeCount = document.getElementById('executeCount')
-    executeCount.textContent = `x${Sequence.#totalExecutions}`
+    executeCount.textContent = Sequence.#totalExecutions
     this.updateEstimatedTime()
 
     if (this.begun) {

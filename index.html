@@ -157,7 +157,7 @@
 <body>
   <!-- overlay -->
   <div id="overlay" style="display: none; opacity: 0;">
-    <button id="overlayCloseBtn">❌</button>
+    <button id="overlayCloseBtn" class="mediumBtn">❌</button>
     <div style="display: flex; height: 100%; width: 100%;">
       <div id="overlayHist"></div>
       <div id="overlayDisplay">
@@ -180,15 +180,17 @@
   </div>
   <main>
     <div id="sequenceParams">
-      <h2 id="sequenceTitle" spellcheck="false" contenteditable="true" title="Sequence name, click to edit">Sequence</h2>
-      <h2 class="titleStyle" style="user-select: none;">📝</h2>
-      <div id="executeFrame" title="Scroll to increment/decrement">
-        <p>Execute</p>
-        <p id="executeCount">x1</p>
+      <div style="display: flex;">
+        <h2 id="sequenceTitle" spellcheck="false" contenteditable="true" title="Sequence name, click to edit" style="border-bottom: dotted dimgray thin;">Sequence</h2>
+        <h2 class="titleStyle" style="user-select: none;">📝</h2>
       </div>
-      <button id="sequenceSave" title="Save sequence"">Save</button>
+      <div id="executeFrame" class="mediumBtn" title="Repetition, scroll to increment/decrement">
+        <p>🔁 Execute x</p>
+        <p id="executeCount">1</p>
+      </div>
+      <button id="sequenceSave" class="mediumBtn" title="Save sequence"">💾 Save</button>
       <h2 class="titleStyle" id="estimatedTime" style="user-select: none;" title="Estimated duration">0s</h2>
-      <button id="startSequenceBtn" title="Start sequence">Start</button>
+      <button id="startSequenceBtn" class="mediumBtn" title="Start sequence">▶️ Start</button>
     </div>
     <div id="sequenceList"></div>
     <div id="sequencer"></div>
