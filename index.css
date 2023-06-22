@@ -115,6 +115,8 @@ main {
 #startSequenceBtn {
   width: 8rem;
   margin-left: auto;
+  background: #317bff;
+  border-color: #1f54f4;
 }
 
 .mediumBtn {
