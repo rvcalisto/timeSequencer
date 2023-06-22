@@ -37,6 +37,21 @@ html, * {
   --appFont: system-ui;
 }
 
+@media (orientation: portrait) {
+  #sequenceParams {
+    flex-wrap: wrap;
+  }
+
+  #overlay > div {
+    flex-direction: column-reverse;
+  }
+
+  #overlayHist {
+    width: 100% !important;
+    height: 100%;
+  }
+}
+
 main {
   display: flex;
   flex-direction: column;
@@ -160,12 +175,11 @@ timer-item {
   margin: 0.5rem; */
   overflow: hidden auto;
   transition: .2s;
-  padding: 0.4rem;
-  gap: 0.4rem;
 }
 
 #overlayHist:empty {
   width: 0;
+  height: 0;
   padding: 0;
 }
 
@@ -175,6 +189,7 @@ timer-item {
   background: #2e2e2e;
   border-radius: 0.5rem;
   font-family: var(--appFont);
+  margin: .4rem;
 
   word-break: break-all;
   white-space: pre-line;
@@ -218,13 +233,9 @@ timer-item {
   color: whitesmoke;
   font-family: var(--appFont);
   font-weight: bold;
-  font-size: 8vh;
+  font-size: xxx-large;
   text-align: center;
   user-select: none;
-}
-
-.overlayInfo p {
-  margin: 0px;
 }
 
 .ctrlBtn {
@@ -234,7 +245,6 @@ timer-item {
   border-radius: 2rem;
   font-size: x-large;
   background: #363636;
-  margin: 1rem;
   transition: .2s;
 }
 
