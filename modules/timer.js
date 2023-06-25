@@ -91,16 +91,19 @@ class Timer extends HTMLElement {
 
     const editorHour = this.shadowRoot.getElementById('editorHour')
     editorHour.addEventListener('wheel', (e) => {
+      e.preventDefault()
       updateTimeByValue(e.deltaY < 0 ? 3600 : -3600)
     })
 
     const editorMin = this.shadowRoot.getElementById('editorMin')
     editorMin.addEventListener('wheel', (e) => {
+      e.preventDefault()
       updateTimeByValue(e.deltaY < 0 ? 60 : -60)
     })
 
     const editorSec = this.shadowRoot.getElementById('editorSec')
     editorSec.addEventListener('wheel', (e) => {
+      e.preventDefault()
       updateTimeByValue(e.deltaY < 0 ? 1 : -1)
     })
   }
