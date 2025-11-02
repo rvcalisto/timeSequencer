@@ -1,5 +1,5 @@
 // @ts-check
-import { Timer } from "./timer.js";
+import { secondsToHMSshort } from "./timeUtils.js";
 
 
 /**
@@ -50,7 +50,7 @@ export const TimerHistory = new class {
     const checkoutHour = new Date(this.#checkoutTime).toString().split(' ')[4]
 
     const delta = ( this.#checkoutTime - this.#checkinTime ) / 1000
-    const HMS = Timer.secondsToHMSshort(delta)
+    const HMS = secondsToHMSshort(delta)
     const timeSession = `${checkinHour} - ${checkoutHour} (${HMS})`
 
     
@@ -91,7 +91,7 @@ export const TimerHistory = new class {
     deltaEntry.style.boxShadow = 'none'
     deltaEntry.setAttribute('icon', 'deadtime')
 
-    const duration = Timer.secondsToHMSshort(delta)
+    const duration = secondsToHMSshort(delta)
 
     deltaEntry.textContent = `Dead time\n${formattedFromTime} - ${formattedToTime} (${duration})`
     this.#historyDiv.append(deltaEntry)

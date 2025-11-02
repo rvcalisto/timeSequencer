@@ -1,5 +1,5 @@
 // @ts-check
-import { Timer } from "./modules/timer.js";
+import { Sequence } from "./modules/sequence.js";
 import "./modules/sequenceList.js";
 
 
@@ -24,7 +24,7 @@ function createNotificationButton() {
 }
 
 addEventListener('load', function startApp() {
-  Timer.newItem();
+  Sequence.addTimer();
 
   if (Notification.permission === 'default')
     createNotificationButton();

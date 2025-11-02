@@ -38,7 +38,7 @@
         cursor: pointer;
       }
 
-      #spawnButtons {
+      .sideButtons {
         display: flex; 
         flex-direction: column; 
         justify-content: space-evenly;
@@ -50,8 +50,12 @@
         flex-direction: column;
         justify-content: center;
         overflow: hidden;
-        width: 12rem;
+        width: 0rem;
         transition: .15s;
+
+        :host(.selectedTimer) & {
+          width: 12rem;
+        }
       }
 
       p {
@@ -122,7 +126,7 @@
         <p>Type</p>
         <p>Time</p>
       </div>
-      <div id="timerInputBox" style="width: 0;">
+      <div id="timerInputBox">
         <div class="option">
           <p style="color: silver">Type</p>
           <select id="editorType" title="Select timer type" name="type">
@@ -142,16 +146,16 @@
           <p id="editorSec" title="Seconds, scroll to change" style="cursor: ns-resize;">SS</p>
         </div>
       </div>
-      <div id="spawnButtons">
-        <button title="Create new timer here">➕</button>
-        <button title="Remove timer">➖</button>
+      <div class="sideButtons">
+        <button class="addNew" title="Create new timer here">➕</button>
+        <button class="remove" title="Remove timer">➖</button>
       </div>
     </div>
   </template>
 
   <body>
     <!-- overlay -->
-    <div id="overlay" style="display: none; opacity: 0;">
+    <div id="overlay" style="display: none;">
       <button id="overlayCloseBtn" class="mediumBtn">❌</button>
       <div style="display: flex; height: 100%; width: 100%;">
         <div id="overlayHist"></div>

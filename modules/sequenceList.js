@@ -1,7 +1,6 @@
 // @ts-check
 import { Sequence } from "./sequence.js";
 import { getSequences, removeSequence, storeSequence } from "./sequenceStorage.js";
-import { Timer } from "./timer.js";
 
 
 const listElement = /** @type {HTMLDivElement} */ (document.getElementById('sequenceList'));
@@ -13,24 +12,24 @@ const saveElement = /** @type {HTMLButtonElement} */ (document.getElementById('s
  */
 function populateSequences() {
   const sequenceTitles = getSequences().keys();
-  listElement.textContent = ''
+  listElement.textContent = '';
 
   for (const entry of sequenceTitles) {
-    const btn = document.createElement('button')
-    btn.textContent = entry
-    btn.style.background = '#333333'
-    btn.style.borderColor = '#111111'
-    btn.title = 'Load sequence. Right-click to remove'
+    const btn = document.createElement('button');
+    btn.textContent = entry;
+    btn.style.background = '#333333';
+    btn.style.borderColor = '#111111';
+    btn.title = 'Load sequence. Right-click to remove';
 
-    btn.onclick = () => loadSequence(entry)
+    btn.onclick = () => loadSequence(entry);
 
     btn.oncontextmenu = () => {
-      removeSequence(entry)
-      populateSequences()
-      return false
-    }
+      removeSequence(entry);
+      populateSequences();
+      return false;
+    };
 
-    listElement.appendChild(btn)
+    listElement.appendChild(btn);
   }
 }
 
@@ -52,19 +51,13 @@ function storeCurrentSequence() {
  */
 function loadSequence(loadName) {
   const sequence = getSequences().get(loadName);
-  
-  if (sequence == null) {
-    return console.log(`no sequence named ${loadName} in storage.`)
-  }
 
-  // remove current items (iterate backwards to workaround re-indexing)
-  for (let i = Timer.all.length - 1; i >= 0; i--) {
-    const element = Timer.all[i];
-    element.remove()
+  if (sequence == null)
+    console.log(`no sequence named ${loadName} in storage.`);
+  else {
+    Sequence.importSequence(loadName, sequence);
+    console.log(`loaded timer items from ${loadName}`);
   }
-
-  Sequence.importSequence(loadName, sequence);
-  console.log(`loaded timer items from ${loadName}`)
 }
 
 function initialize() {

@@ -1,6 +1,7 @@
 // @ts-check
 import { Overlay } from "./overlay.js";
-import { Timer } from "./timer.js";
+import { Timer } from "./timer.js"
+import { secondsToHMSshort } from "./timeUtils.js";
 
 
 /**
@@ -13,12 +14,13 @@ import { Timer } from "./timer.js";
  */
 export const Sequence = new class {
 
+  #sequencer = /** @type {HTMLDivElement} */ (document.getElementById('sequencer'));
   #sequenceTitle = /** @type {HTMLLabelElement} */ (document.getElementById('sequenceTitle'));
   #executeCountLabel = /** @type {HTMLLabelElement} */ (document.getElementById('executeCount'));
   #estimatedTimeLabel = /** @type {HTMLLabelElement} */ (document.getElementById('estimatedTime'));
 
   constructor() {
-    this.#initEvents()
+    this.#initEvents();
   }
 
   /**
@@ -39,11 +41,62 @@ export const Sequence = new class {
    */
   set totalExecutions(value) {
     this.#executeCountLabel.textContent = `${Math.max(1, value)}`;
-    this.updateEstimatedTime();
+    this.#updateEstimatedTime();
   }
 
   get totalExecutions() {
     return Number(this.#executeCountLabel.textContent);
+  }
+
+  get #allTimers() {
+    const timers = /** @type {Timer[]} */ ([...this.#sequencer.children]);
+    return timers;
+  }
+
+  #newTimer() {
+    const timer =  /** @type {Timer} */ (document.createElement('timer-item'));
+
+    timer.onSelect = () => {
+      const currentlySelected = this.#sequencer.querySelector('.selectedTimer');
+      if (currentlySelected)
+        currentlySelected.classList.remove('selectedTimer');
+
+      timer.classList.add('selectedTimer');
+    };
+
+    timer.onAddNew = () => {
+      const child = this.#newTimer();
+      timer.after(child);
+      child.click();
+    };
+
+    timer.onRemove = () => {
+      if (this.#allTimers.length < 2)
+        return;
+
+      const next = timer.nextSibling
+        ? timer.nextSibling
+        : timer.previousSibling;
+
+      timer.remove();
+      /** @type {Timer} */ (next).click();
+    };
+
+    return timer;
+  }
+
+  /**
+   * Add timer to sequencer.
+   * @param {Timer} [before] Either to add timer before element.
+   */
+  addTimer(before) {
+    const timer = this.#newTimer();
+
+    before != null
+      ? before.before(timer)
+      : this.#sequencer.appendChild(timer);
+
+    timer.click();
   }
 
   /**
@@ -52,24 +105,23 @@ export const Sequence = new class {
    * @param {SequenceData} sequence Sequence data.
    */
   importSequence(name, sequence) {
-    const sequencerElement = /** @type {HTMLDivElement} */ (document.getElementById('sequencer'));
+    this.#sequencer.textContent = '';
 
     this.title = name;
     this.totalExecutions = sequence.executions;
 
-    for (const timer of sequence.timers) {
-      const { label, type, time } = timer
-      
-      const newTimer = /** @type {Timer} */ (document.createElement('timer-item'))
-      newTimer.label = label
-      newTimer.type = type
-      newTimer.time = Number(time)
-      
-      sequencerElement.appendChild(newTimer)
+    for (const { label, type, time } of sequence.timers) {
+      const timer = this.#newTimer();
+      timer.label = label;
+      timer.type = type;
+      timer.time = Number(time);
+
+      this.#sequencer.appendChild(timer);
     }
 
     // select last
-    Timer.all[Timer.all.length - 1].select();
+    const last = /** @type {Timer|undefined} */ (this.#sequencer.lastChild);
+    last?.click();
   }
 
   /**
@@ -79,7 +131,7 @@ export const Sequence = new class {
   exportSequence() {
     return {
       executions: this.totalExecutions,
-      timers: Timer.all.map((timer) => ({
+      timers: this.#allTimers.map((timer) => ({
         label: timer.label,
         type: timer.type,
         time: timer.time
@@ -90,29 +142,25 @@ export const Sequence = new class {
   /**
    * Update estimated sequence duration as show on screen.
    */
-  updateEstimatedTime() {
+  #updateEstimatedTime() {
     let timeInSecs = 0;
-    Timer.all.forEach(timer => timeInSecs += timer.time);
+    this.#allTimers.forEach(timer => timeInSecs += timer.time);
 
-    const HMS = Timer.secondsToHMSshort(timeInSecs * this.totalExecutions);
+    const HMS = secondsToHMSshort(timeInSecs * this.totalExecutions);
     this.#estimatedTimeLabel.textContent = HMS;
   }
 
   #initEvents() {
     // change sequence execution count
     const executeFrame = /** @type {HTMLButtonElement} */ (document.getElementById('executeFrame'))
-    executeFrame.addEventListener('wheel', (ev) => {
-      this.totalExecutions += ev.deltaY < 0 ? 1 : -1
-    })
+    executeFrame.addEventListener('wheel', (e) => {
+      this.totalExecutions += Math.sign(e.deltaY);
+    });
 
     // display overlay and start sequence
     const startSequenceBtn = /** @type {HTMLButtonElement} */ (document.getElementById('startSequenceBtn'))
-    startSequenceBtn.onclick = () => {
-      Overlay.restore()
-      Overlay.toggle(true)
-      Overlay.play()
-    }
-    
-    addEventListener('timerUpdated', () => this.updateEstimatedTime() );
+    startSequenceBtn.onclick = () => Overlay.playSequence( this.exportSequence() );
+
+    addEventListener('timerUpdated', () => this.#updateEstimatedTime() );
   }
 }

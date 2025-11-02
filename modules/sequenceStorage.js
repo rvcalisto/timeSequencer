@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * @import { TimerData } from "./timer.js"
+ * @import { TimerData } from "./timeUtils.js"
  */
 
 /**
