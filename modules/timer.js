@@ -1,10 +1,26 @@
+// @ts-check
+
+
+/**
+ * @typedef TimerData
+ * @property {string} label Timer descriptor.
+ * @property {'Count-Up'|'Count-Down'} type Timer counter type.
+ * @property {number} time Timer duration, if applicable.
+ */
+
+
 /**
  * Tag element to visualize and configure timer sequence prior to executing it.
  */
-class Timer extends HTMLElement {
+export class Timer extends HTMLElement {
 
-  static nextIdx = 0
+  static nextIdx = 0;
+
   #timeout
+
+  static {
+    customElements.define('timer-item', Timer);
+  }
 
   constructor(type = 'Count-Down', time = 5, label = `Timer #${++Timer.nextIdx}`) {
     super()
@@ -36,7 +52,7 @@ class Timer extends HTMLElement {
   }
 
   disconnectedCallback() {
-    Sequence.updateEstimatedTime()
+    dispatchEvent( new CustomEvent('timerUpdated') );
   }
 
   /**
@@ -127,7 +143,7 @@ class Timer extends HTMLElement {
     const editorSec = this.shadowRoot.getElementById('editorSec')
     editorSec.textContent = ss
 
-    Sequence.updateEstimatedTime()
+    dispatchEvent( new CustomEvent('timerUpdated') );
   }
 
   /** 
@@ -145,7 +161,6 @@ class Timer extends HTMLElement {
       }
 
       // tick
-      Sequence.consumedTime += 1
       this.consumedTime += 1
       this.currentTime += this.type == 'Count-Up' ? 1 : -1
 
@@ -190,7 +205,8 @@ class Timer extends HTMLElement {
       currentTime: this.currentTime,
       label: this.label,
       type: this.type
-    }})
+    }});
+
     dispatchEvent(ev)
     console.log(`[${this.label}] currentTime: ${this.currentTime}`);
   }
@@ -254,8 +270,8 @@ class Timer extends HTMLElement {
 
   /**
    * Convert seconds to "HH:MM:SS".
-   * @param {Number} seconds Seconds to convert.
-   * @returns {String}
+   * @param {number} seconds Seconds to convert.
+   * @returns {string}
    */
   static secondsToHMS(seconds) {
     let h = Math.floor(seconds / 3600)
@@ -271,8 +287,8 @@ class Timer extends HTMLElement {
 
   /**
    * Convert seconds to "0h 0m 0s".
-   * @param {Number} seconds Seconds to convert.
-   * @returns {String}
+   * @param {number} seconds Seconds to convert.
+   * @returns {string}
    */
   static secondsToHMSshort(seconds) {
     let h = Math.floor(seconds / 3600)
@@ -285,8 +301,4 @@ class Timer extends HTMLElement {
 
     return `${h}${m}${s}` || '0s'
   }
-
 }
-
-
-customElements.define('timer-item', Timer)

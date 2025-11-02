@@ -1,28 +1,31 @@
+// @ts-check
+import { Timer } from "./modules/timer.js";
+import "./modules/sequenceList.js";
+
+
 /**
  * Creates a notification request button when permission isn't already detected.
  */
 function createNotificationButton() {
-  if (Notification.permission === 'granted') return
+  const button = document.createElement('button');
+  button.textContent = '🔔';
+  button.className = 'mediumBtn';
+  button.style.background = 'mediumslateblue';
+  button.style.borderColor = 'darkslateblue';
+  button.title = 'Allow notifications for timeout alerts while this tab is unfocused?';
 
-  const allowNotifyBtn = document.createElement('button')
-  allowNotifyBtn.textContent = '🔔❔'
-  allowNotifyBtn.className = 'mediumBtn'
-  allowNotifyBtn.style.background = 'mediumslateblue'
-  allowNotifyBtn.style.borderColor = 'darkslateblue'
-  allowNotifyBtn.title = 'Allow notifications for timeout alerts while this tab is unfocused?'
-
-  allowNotifyBtn.onclick = async () => {
-    const permission = await Notification.requestPermission()
-    if (permission === 'granted') allowNotifyBtn.remove()
+  button.onclick = async () => {
+    const permission = await Notification.requestPermission();
+    permission !== 'default' && button.remove();
   }
 
-  const estimatedTimeLabel = document.getElementById('executeFrame')
-  estimatedTimeLabel.before(allowNotifyBtn)
+  const estimatedTimeLabel = document.getElementById('executeFrame');
+  estimatedTimeLabel?.before(button);
 }
 
+addEventListener('load', function startApp() {
+  Timer.newItem();
 
-onload = function startApp() {
-  Timer.newItem()
-  createNotificationButton() 
-}
-
+  if (Notification.permission === 'default')
+    createNotificationButton();
+});

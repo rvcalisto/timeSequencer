@@ -1,13 +1,20 @@
+// @ts-check
+import { Timer } from "./timer.js";
+
+
 /**
  * Logs timer life-cycle events.
  */
-const TimerHistory = new class {
-  #historyDiv; #checkinTime; #checkoutTime
+export const TimerHistory = new class {
+
+  #historyDiv = /** @type {HTMLDivElement} */ (document.getElementById('overlayHist'));
+
+  /** @type {number} */ #checkinTime;
+  /** @type {number} */ #checkoutTime
 
   constructor() {
-    this.#historyDiv = document.getElementById('overlayHist')
-    this.#checkinTime = 0
-    this.#checkoutTime = 0
+    this.#checkinTime = 0;
+    this.#checkoutTime = 0;
   }
 
   /**
@@ -25,7 +32,8 @@ const TimerHistory = new class {
 
   /**
    * Register timer-end on timer history.
-   * @param {String} label Timer counter state descriptor.
+   * @param {string} label Timer counter state descriptor.
+   * @param {string} icon Custom icon.
    */
   checkoutTimer(label, icon) {
     const nextCheckoutTime = Date.now()
@@ -41,9 +49,9 @@ const TimerHistory = new class {
     const checkinHour = new Date(this.#checkinTime).toString().split(' ')[4]
     const checkoutHour = new Date(this.#checkoutTime).toString().split(' ')[4]
 
-    let delta = ( this.#checkoutTime - this.#checkinTime ) / 1000
-    delta = Timer.secondsToHMSshort(delta)
-    const timeSession = `${checkinHour} - ${checkoutHour} (${delta})`
+    const delta = ( this.#checkoutTime - this.#checkinTime ) / 1000
+    const HMS = Timer.secondsToHMSshort(delta)
+    const timeSession = `${checkinHour} - ${checkoutHour} (${HMS})`
 
     
     const timerEntry = document.createElement('p')
@@ -62,8 +70,8 @@ const TimerHistory = new class {
 
   /**
    * Register period of inactivity on timer history.
-   * @param {Number} fromDate Start Date value.
-   * @param {Number} toDate End Date value.
+   * @param {number} fromDate Start Date value.
+   * @param {number} toDate End Date value.
    */
   #addDeadTime(fromDate, toDate) {
     const previousEntry = this.#historyDiv.lastElementChild

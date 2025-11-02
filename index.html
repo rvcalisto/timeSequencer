@@ -1,199 +1,195 @@
 <!DOCTYPE html>
+
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="script-src 'self'" />
-  <title>Time Sequencer</title>
-  <link rel="stylesheet" href="index.css">
-  <link rel="shortcut icon" href="icons/icon.png" type="image/x-icon">
 
-  <!-- not 'real' modules to allow 'file://' protocol -->
-  <script defer src="modules/sequence.js"></script>
-  <script defer src="modules/sequenceList.js"></script>
-  <script defer src="modules/timer.js"></script>
-  <script defer src="modules/overlay.js"></script>
-  <script defer src="modules/timerHistory.js"></script>
-  <script defer src="index.js"></script>
-</head>
+  <head>
+    <title>Time Sequencer</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="shortcut icon" href="icons/icon.png" type="image/x-icon"/>
+    <link rel="stylesheet" href="index.css"/>
+    <script type="module" src="index.js"></script>
+  </head>
 
-<template id="timerTemplate">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      outline: none;
-    }
+  <template id="timerTemplate">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        outline: none;
+      }
 
-    .timerBox {
-      height: 6rem;
-      user-select: none;
-      display: flex;
-    }
+      .timerBox {
+        height: 6rem;
+        user-select: none;
+        display: flex;
+      }
 
-    #timerInfo {
-      width: 6rem;
-      height: 6rem;
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
-      background-image: url(./icons/clockUp.webp);
-      background-size: 100% 100%;
-      background-repeat: no-repeat;
-      cursor: pointer;
-    }
+      #timerInfo {
+        width: 6rem;
+        height: 6rem;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        background-image: url(./icons/clockUp.webp);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        cursor: pointer;
+      }
 
-    #spawnButtons {
-      display: flex; 
-      flex-direction: column; 
-      justify-content: space-evenly;
-    }
+      #spawnButtons {
+        display: flex; 
+        flex-direction: column; 
+        justify-content: space-evenly;
+      }
 
-    #timerInputBox {
-      color: whitesmoke;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      overflow: hidden;
-      width: 12rem;
-      transition: .15s;
-    }
+      #timerInputBox {
+        color: whitesmoke;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        overflow: hidden;
+        width: 12rem;
+        transition: .15s;
+      }
 
-    p {
-      margin: 0px auto;
-      color: whitesmoke;
-      font-family: var(--appFont);
-      font-weight: bold;
-      text-align: center;
-      text-shadow: 0px 0px 6px black, 
-      0px 0px 6px black;
-    }
+      p {
+        margin: 0px auto;
+        color: whitesmoke;
+        font-family: var(--appFont);
+        font-weight: bold;
+        text-align: center;
+        text-shadow: 0px 0px 6px black, 
+        0px 0px 6px black;
+      }
 
-    .option {
-      background: #181717;
-      border-radius: .3rem;
-      margin: 4px;
-      display: flex;
-      gap: 4px;
-      box-shadow: 0px 2px 0px black;
-    }
+      .option {
+        background: #181717;
+        border-radius: .3rem;
+        margin: 4px;
+        display: flex;
+        gap: 4px;
+        box-shadow: 0px 2px 0px black;
+      }
 
-    .timeSeparator {
-      cursor: default !important; 
-      padding: 0 !important;
-      margin: 0 !important;
-      color: silver;
-    }
+      .timeSeparator {
+        cursor: default !important; 
+        padding: 0 !important;
+        margin: 0 !important;
+        color: silver;
+      }
 
-    .option p {
-      padding: 2px 5px;
-      text-align: center;
-      font-weight: bold;
-      user-select: none;
-    }
+      .option p {
+        padding: 2px 5px;
+        text-align: center;
+        font-weight: bold;
+        user-select: none;
+      }
 
-    input, select {
-      width: 100%;
-      font-weight: bold;
-      background: inherit;
-      border-radius: inherit;
-      color: inherit;
-      border: none;
-    }
+      input, select {
+        width: 100%;
+        font-weight: bold;
+        background: inherit;
+        border-radius: inherit;
+        color: inherit;
+        border: none;
+      }
 
-    button {
-      height: 2rem;
-      width: 2rem;
-      border-radius: 2rem;
-      z-index: 1;
-      background: #adadad;
-      border: none;
-      border-bottom: solid dimgray .2rem;
-      transition: .1s;
-    }
+      button {
+        height: 2rem;
+        width: 2rem;
+        border-radius: 2rem;
+        z-index: 1;
+        background: #adadad;
+        border: none;
+        border-bottom: solid dimgray .2rem;
+        transition: .1s;
+      }
 
-    button:hover, select:hover {
-      cursor: pointer;
-      filter: brightness(.9);
-    }
+      button:hover, select:hover {
+        cursor: pointer;
+        filter: brightness(.9);
+      }
 
-    button:active {
-      transform: scale(.9);
-    }
-  </style>
-  <div class="timerBox">
-    <div id="timerInfo">
-      <p>Label</p>
-      <p>Type</p>
-      <p>Time</p>
-    </div>
-    <div id="timerInputBox" style="width: 0;">
-      <div class="option">
-        <p style="color: silver">Type</p>
-        <select id="editorType" title="Select timer type" name="type">
-          <option>Count-Up</option>
-          <option>Count-Down</option>
-        </select>
+      button:active {
+        transform: scale(.9);
+      }
+    </style>
+    <div class="timerBox">
+      <div id="timerInfo">
+        <p>Label</p>
+        <p>Type</p>
+        <p>Time</p>
       </div>
-      <div class="option">
-        <p style="color: silver" spellcheck="false">Label</p>
-        <input id="editorLabel" title="Edit timer label" type="text" name="label" placeholder="Timer Label">
-      </div>
-      <div class="option">
-        <p id="editorHour" title="Hours, scroll to change" style="cursor: ns-resize;">HH</p>
-        <p class="timeSeparator">:</p>
-        <p id="editorMin" title="Minutes, scroll to change" style="cursor: ns-resize;">MM</p>
-        <p class="timeSeparator">:</p>
-        <p id="editorSec" title="Seconds, scroll to change" style="cursor: ns-resize;">SS</p>
-      </div>
-    </div>
-    <div id="spawnButtons">
-      <button title="Create new timer here">➕</button>
-      <button title="Remove timer">➖</button>
-    </div>
-  </div>
-</template>
-
-<body>
-  <!-- overlay -->
-  <div id="overlay" style="display: none; opacity: 0;">
-    <button id="overlayCloseBtn" class="mediumBtn">❌</button>
-    <div style="display: flex; height: 100%; width: 100%;">
-      <div id="overlayHist"></div>
-      <div id="overlayDisplay">
-        <div class="overlayInfo">
-          <p>⏱️</p>
-          <p>Label</p>
-          <p style="font-size: small;" >seq: 1/1 timer: 1/1</p>
-          <p>Timer</p>
-          <p style="font-size: small;">0s</p>
+      <div id="timerInputBox" style="width: 0;">
+        <div class="option">
+          <p style="color: silver">Type</p>
+          <select id="editorType" title="Select timer type" name="type">
+            <option>Count-Up</option>
+            <option>Count-Down</option>
+          </select>
         </div>
-        <!-- controls -->
-        <div style="margin: 2rem; display: flex; gap: 1rem;">
-          <button id="ctrlPrev" class="ctrlBtn" title="Previous Timer">⏮️</button>
-          <button id="ctrlToggle" class="ctrlBtn" title="Play/Pause">⏸️</button>
-          <button id="ctrlNext" class="ctrlBtn" title="Next Timer">⏭️</button>
-          <button id="ctrlAdd" class="ctrlBtn" title="Add +1 execution">🔁</button>
+        <div class="option">
+          <p style="color: silver" spellcheck="false">Label</p>
+          <input id="editorLabel" title="Edit timer label" type="text" name="label" placeholder="Timer Label">
+        </div>
+        <div class="option">
+          <p id="editorHour" title="Hours, scroll to change" style="cursor: ns-resize;">HH</p>
+          <p class="timeSeparator">:</p>
+          <p id="editorMin" title="Minutes, scroll to change" style="cursor: ns-resize;">MM</p>
+          <p class="timeSeparator">:</p>
+          <p id="editorSec" title="Seconds, scroll to change" style="cursor: ns-resize;">SS</p>
+        </div>
+      </div>
+      <div id="spawnButtons">
+        <button title="Create new timer here">➕</button>
+        <button title="Remove timer">➖</button>
+      </div>
+    </div>
+  </template>
+
+  <body>
+    <!-- overlay -->
+    <div id="overlay" style="display: none; opacity: 0;">
+      <button id="overlayCloseBtn" class="mediumBtn">❌</button>
+      <div style="display: flex; height: 100%; width: 100%;">
+        <div id="overlayHist"></div>
+        <div id="overlayDisplay">
+          <div class="overlayInfo">
+            <p>⏱️</p>
+            <p>Label</p>
+            <p style="font-size: small;" >seq: 1/1 timer: 1/1</p>
+            <p>Timer</p>
+            <p style="font-size: small;">0s</p>
+          </div>
+          <!-- controls -->
+          <div style="margin: 2rem; display: flex; gap: 1rem;">
+            <button id="ctrlPrev" class="ctrlBtn" title="Previous Timer">⏮️</button>
+            <button id="ctrlToggle" class="ctrlBtn" title="Play/Pause">⏸️</button>
+            <button id="ctrlNext" class="ctrlBtn" title="Next Timer">⏭️</button>
+            <button id="ctrlAdd" class="ctrlBtn" title="Add +1 execution">🔁</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <main>
-    <div id="sequenceParams">
-      <div style="display: flex;">
-        <h2 id="sequenceTitle" spellcheck="false" contenteditable="true" title="Sequence name, click to edit" style="border-bottom: dotted dimgray thin;">Sequence</h2>
-        <h2 class="titleStyle" style="user-select: none;">📝</h2>
+    <main>
+      <div id="sequenceParams">
+        <div style="display: flex;">
+          <h2 id="sequenceTitle" spellcheck="false" contenteditable="true" title="Sequence name, click to edit" style="border-bottom: dotted dimgray thin;">Sequence</h2>
+          <h2 class="titleStyle" style="user-select: none;">📝</h2>
+        </div>
+        <div id="executeFrame" class="mediumBtn" title="Repetition, scroll to increment/decrement">
+          <p>🔁 Execute x</p>
+          <p id="executeCount">1</p>
+        </div>
+        <button id="sequenceSave" class="mediumBtn" title="Save sequence"">💾 Save</button>
+        <h2 class="titleStyle" id="estimatedTime" style="user-select: none;" title="Estimated duration">0s</h2>
+        <button id="startSequenceBtn" class="mediumBtn" title="Start sequence">▶️ Start</button>
       </div>
-      <div id="executeFrame" class="mediumBtn" title="Repetition, scroll to increment/decrement">
-        <p>🔁 Execute x</p>
-        <p id="executeCount">1</p>
-      </div>
-      <button id="sequenceSave" class="mediumBtn" title="Save sequence"">💾 Save</button>
-      <h2 class="titleStyle" id="estimatedTime" style="user-select: none;" title="Estimated duration">0s</h2>
-      <button id="startSequenceBtn" class="mediumBtn" title="Start sequence">▶️ Start</button>
-    </div>
-    <div id="sequenceList"></div>
-    <div id="sequencer"></div>
-  </main>
-</body>
+      <div id="sequenceList"></div>
+      <div id="sequencer"></div>
+    </main>
+  </body>
+
 </html>
