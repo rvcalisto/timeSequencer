@@ -55,7 +55,6 @@ export const TimerHistory = new class {
 
     
     const timerEntry = document.createElement('p')
-    timerEntry.classList = 'overlayHistItem'
     timerEntry.textContent = label
     timerEntry.textContent += `\n${timeSession}`
     
@@ -65,7 +64,7 @@ export const TimerHistory = new class {
 
     this.#checkinTime = -1 // close checkin
     this.#historyDiv.append(timerEntry)
-    timerEntry.scrollIntoView()
+    timerEntry.scrollIntoView({ behavior: 'smooth' })
   }
 
   /**
@@ -86,7 +85,6 @@ export const TimerHistory = new class {
     if (formattedFromTime === formattedToTime) return
 
     const deltaEntry = document.createElement('p')
-    deltaEntry.classList = 'overlayHistItem'
     deltaEntry.style.background = 'none'
     deltaEntry.style.boxShadow = 'none'
     deltaEntry.setAttribute('icon', 'deadtime')
@@ -95,6 +93,7 @@ export const TimerHistory = new class {
 
     deltaEntry.textContent = `Dead time\n${formattedFromTime} - ${formattedToTime} (${duration})`
     this.#historyDiv.append(deltaEntry)
+    deltaEntry.scrollIntoView({ behavior: 'smooth' })
   }
 
   /**

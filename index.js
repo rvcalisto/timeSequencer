@@ -1,6 +1,5 @@
 // @ts-check
 import { Sequence } from "./modules/sequence.js";
-import "./modules/sequenceList.js";
 
 
 /**
@@ -9,7 +8,6 @@ import "./modules/sequenceList.js";
 function createNotificationButton() {
   const button = document.createElement('button');
   button.textContent = '🔔';
-  button.className = 'mediumBtn';
   button.style.background = 'mediumslateblue';
   button.style.borderColor = 'darkslateblue';
   button.title = 'Allow notifications for timeout alerts while this tab is unfocused?';
@@ -19,8 +17,7 @@ function createNotificationButton() {
     permission !== 'default' && button.remove();
   }
 
-  const estimatedTimeLabel = document.getElementById('executeFrame');
-  estimatedTimeLabel?.before(button);
+  document.querySelector('header')?.append(button);
 }
 
 addEventListener('load', function startApp() {

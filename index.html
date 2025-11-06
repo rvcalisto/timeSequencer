@@ -20,10 +20,19 @@
         outline: none;
       }
 
-      .timerBox {
-        height: 6rem;
-        user-select: none;
+      .wrapper {
+        background: #323232;
         display: flex;
+        justify-content: space-between;
+        gap: 1em;
+        padding: 1em;
+        border-radius: .5em;
+        user-select: none;
+
+        :host(.selected) & {
+          background: linear-gradient(45deg, #272727 50%, #323232 0);
+          box-shadow: 0px 5px 10px #00000060;
+        }
       }
 
       #timerInfo {
@@ -36,127 +45,125 @@
         background-size: 100% 100%;
         background-repeat: no-repeat;
         cursor: pointer;
+
+        p {
+          color: whitesmoke;
+          font-weight: bold;
+          margin: 0px auto;
+          text-align: center;
+          text-shadow: 0px 0px 6px black, 0px 0px 6px black;
+        }
+      }
+
+      #properties {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 4px;
+        overflow: hidden;
+        width: 0rem;
+        transition: .15s;
+
+        :host(.selected) & {
+          width: 12rem;
+        }
+
+        & > div {
+          background: #181717;
+          display: flex;
+          align-items: baseline;
+          height: 100%;
+          gap: 4px;
+          border-radius: .3rem;
+
+          p {
+            font-size: larger;
+            font-weight: bold;
+            color: silver;
+            text-align: center;
+            user-select: none;
+          }
+        }
+
+        input, select, numeric-input {
+          font-size: larger;
+          font-weight: bold;
+          color: inherit;
+          background: inherit;
+          width: 100%;
+          height: 100%;
+          border: none;
+          border-radius: inherit;
+          vertical-align: middle;
+
+          &[type=number] {
+            text-align: center;
+          }
+        }
       }
 
       .sideButtons {
         display: flex; 
         flex-direction: column; 
-        justify-content: space-evenly;
-      }
+        justify-content: space-between;
 
-      #timerInputBox {
-        color: whitesmoke;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        overflow: hidden;
-        width: 0rem;
-        transition: .15s;
+        button {
+          background: inherit;
+          aspect-ratio: 1;
+          padding: 1em;
+          border: solid thin dimgray;
+          border-radius: .3em;
+          box-shadow: 0px 2px 0px;
+          z-index: 1;
+          transition: .1s;
 
-        :host(.selectedTimer) & {
-          width: 12rem;
+          &:hover {
+            cursor: pointer;
+            filter: brightness(.9);
+          }
+
+          &:active {
+            transform: scale(.9);
+          }
         }
       }
-
-      p {
-        margin: 0px auto;
-        color: whitesmoke;
-        font-family: var(--appFont);
-        font-weight: bold;
-        text-align: center;
-        text-shadow: 0px 0px 6px black, 
-        0px 0px 6px black;
-      }
-
-      .option {
-        background: #181717;
-        border-radius: .3rem;
-        margin: 4px;
-        display: flex;
-        gap: 4px;
-        box-shadow: 0px 2px 0px black;
-      }
-
-      .timeSeparator {
-        cursor: default !important; 
-        padding: 0 !important;
-        margin: 0 !important;
-        color: silver;
-      }
-
-      .option p {
-        padding: 2px 5px;
-        text-align: center;
-        font-weight: bold;
-        user-select: none;
-      }
-
-      input, select {
-        width: 100%;
-        font-weight: bold;
-        background: inherit;
-        border-radius: inherit;
-        color: inherit;
-        border: none;
-      }
-
-      button {
-        height: 2rem;
-        width: 2rem;
-        border-radius: 2rem;
-        z-index: 1;
-        background: #adadad;
-        border: none;
-        border-bottom: solid dimgray .2rem;
-        transition: .1s;
-      }
-
-      button:hover, select:hover {
-        cursor: pointer;
-        filter: brightness(.9);
-      }
-
-      button:active {
-        transform: scale(.9);
-      }
     </style>
-    <div class="timerBox">
+    <div class="wrapper">
       <div id="timerInfo">
         <p>Label</p>
         <p>Type</p>
         <p>Time</p>
       </div>
-      <div id="timerInputBox">
-        <div class="option">
-          <p style="color: silver">Type</p>
-          <select id="editorType" title="Select timer type" name="type">
+      <div id="properties">
+        <div>
+          <p style="margin: 0 .5em;">Label</p>
+          <input id="editorLabel" type="text" placeholder="Timer Label" spellcheck="false" title="Timer label"/>
+        </div>
+        <div>
+          <p style="margin: 0 .5em;">Type</p>
+          <select id="editorType" title="Timer type">
             <option>Count-Up</option>
             <option>Count-Down</option>
           </select>
         </div>
-        <div class="option">
-          <p style="color: silver" spellcheck="false">Label</p>
-          <input id="editorLabel" title="Edit timer label" type="text" name="label" placeholder="Timer Label">
-        </div>
-        <div class="option">
-          <p id="editorHour" title="Hours, scroll to change" style="cursor: ns-resize;">HH</p>
-          <p class="timeSeparator">:</p>
-          <p id="editorMin" title="Minutes, scroll to change" style="cursor: ns-resize;">MM</p>
-          <p class="timeSeparator">:</p>
-          <p id="editorSec" title="Seconds, scroll to change" style="cursor: ns-resize;">SS</p>
+        <div>
+          <numeric-input id="editorHour" type="number" min="0" max="" value="00" title="Hours"></numeric-input>
+          <p>:</p>
+          <numeric-input id="editorMin" type="number" min="0" max="" value="00" title="Minutes"></numeric-input>
+          <p>:</p>
+          <numeric-input id="editorSec" type="number" min="0" max="" value="05" title="Seconds"></numeric-input>
         </div>
       </div>
       <div class="sideButtons">
+        <button class="remove" title="Remove timer">✖️</button>
         <button class="addNew" title="Create new timer here">➕</button>
-        <button class="remove" title="Remove timer">➖</button>
       </div>
     </div>
   </template>
 
   <body>
-    <!-- overlay -->
     <div id="overlay" style="display: none;">
-      <button id="overlayCloseBtn" class="mediumBtn">❌</button>
+      <button id="closeOverlay">❌</button>
       <div style="display: flex; height: 100%; width: 100%;">
         <div id="overlayHist"></div>
         <div id="overlayDisplay">
@@ -167,30 +174,30 @@
             <p>Timer</p>
             <p style="font-size: small;">0s</p>
           </div>
-          <!-- controls -->
-          <div style="margin: 2rem; display: flex; gap: 1rem;">
-            <button id="ctrlPrev" class="ctrlBtn" title="Previous Timer">⏮️</button>
-            <button id="ctrlToggle" class="ctrlBtn" title="Play/Pause">⏸️</button>
-            <button id="ctrlNext" class="ctrlBtn" title="Next Timer">⏭️</button>
-            <button id="ctrlAdd" class="ctrlBtn" title="Add +1 execution">🔁</button>
+          <div class="flowControl">
+            <button id="ctrlPrev" title="Previous Timer">⏮️</button>
+            <button id="ctrlToggle" title="Play/Pause">⏸️</button>
+            <button id="ctrlNext" title="Next Timer">⏭️</button>
+            <button id="ctrlAdd" title="Add +1 execution">🔁</button>
           </div>
         </div>
       </div>
     </div>
     <main>
-      <div id="sequenceParams">
-        <div style="display: flex;">
-          <h2 id="sequenceTitle" spellcheck="false" contenteditable="true" title="Sequence name, click to edit" style="border-bottom: dotted dimgray thin;">Sequence</h2>
-          <h2 class="titleStyle" style="user-select: none;">📝</h2>
+      <header>
+        <div>
+          <input id="sequenceTitle" type="text" spellcheck="false" placeholder="Sequence Name"/>
+          <button id="saveSequence" title="Save sequence" disabled >💾</button>
         </div>
-        <div id="executeFrame" class="mediumBtn" title="Repetition, scroll to increment/decrement">
-          <p>🔁 Execute x</p>
-          <p id="executeCount">1</p>
+        <div>
+          <div style="display: inline-flex;">
+            <h2>x</h2>
+            <numeric-input id="executeCount" title="Repetition, scroll to increment/decrement"></numeric-input>
+          </div>
+          <h2 id="estimatedTime" style="user-select: none; margin-left: auto;" title="Estimated duration">0s</h2>
+          <button id="startSequence" title="Start sequence">▶️</button>
         </div>
-        <button id="sequenceSave" class="mediumBtn" title="Save sequence"">💾 Save</button>
-        <h2 class="titleStyle" id="estimatedTime" style="user-select: none;" title="Estimated duration">0s</h2>
-        <button id="startSequenceBtn" class="mediumBtn" title="Start sequence">▶️ Start</button>
-      </div>
+      </header>
       <div id="sequenceList"></div>
       <div id="sequencer"></div>
     </main>

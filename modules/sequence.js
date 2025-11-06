@@ -1,7 +1,9 @@
 // @ts-check
 import { Overlay } from "./overlay.js";
+import { disableSaveButton } from "./sequenceList.js";
 import { Timer } from "./timer.js"
 import { secondsToHMSshort } from "./timeUtils.js";
+import { NumericInput } from "./numericInput.js";
 
 
 /**
@@ -15,11 +17,15 @@ import { secondsToHMSshort } from "./timeUtils.js";
 export const Sequence = new class {
 
   #sequencer = /** @type {HTMLDivElement} */ (document.getElementById('sequencer'));
-  #sequenceTitle = /** @type {HTMLLabelElement} */ (document.getElementById('sequenceTitle'));
-  #executeCountLabel = /** @type {HTMLLabelElement} */ (document.getElementById('executeCount'));
-  #estimatedTimeLabel = /** @type {HTMLLabelElement} */ (document.getElementById('estimatedTime'));
+  #sequenceInputElement = /** @type {HTMLInputElement} */ (document.getElementById('sequenceTitle'));
+  #executionInputElement = /** @type {NumericInput} */ (document.getElementById('executeCount'));
+  #estimatedTimeLabel = /** @type {HTMLParagraphElement} */ (document.getElementById('estimatedTime'));
 
   constructor() {
+    this.#executionInputElement.min = 1;
+    this.#executionInputElement.max = 99;
+    this.#executionInputElement.value = 1;
+
     this.#initEvents();
   }
 
@@ -28,11 +34,12 @@ export const Sequence = new class {
    * @param {string} value
    */
   set title(value) {
-    this.#sequenceTitle.textContent = value;
+    this.#sequenceInputElement.value = value;
+    disableSaveButton( value.trim() === '' );
   }
 
   get title() {
-    return this.#sequenceTitle.textContent;
+    return this.#sequenceInputElement.value;
   }
 
   /**
@@ -40,28 +47,31 @@ export const Sequence = new class {
    * @param {number} value
    */
   set totalExecutions(value) {
-    this.#executeCountLabel.textContent = `${Math.max(1, value)}`;
+    this.#executionInputElement.value = value;
     this.#updateEstimatedTime();
   }
 
   get totalExecutions() {
-    return Number(this.#executeCountLabel.textContent);
+    return this.#executionInputElement.value;
   }
 
   get #allTimers() {
-    const timers = /** @type {Timer[]} */ ([...this.#sequencer.children]);
-    return timers;
+    return /** @type {Timer[]} */ ([...this.#sequencer.children]);
   }
 
   #newTimer() {
-    const timer =  /** @type {Timer} */ (document.createElement('timer-item'));
+    const timer = /** @type {Timer} */ (document.createElement('timer-item'));
 
     timer.onSelect = () => {
-      const currentlySelected = this.#sequencer.querySelector('.selectedTimer');
+      const currentlySelected = this.#sequencer.querySelector('.selected');
       if (currentlySelected)
-        currentlySelected.classList.remove('selectedTimer');
+        currentlySelected.classList.remove('selected');
 
-      timer.classList.add('selectedTimer');
+      timer.classList.add('selected');
+      timer.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
     };
 
     timer.onAddNew = () => {
@@ -114,9 +124,9 @@ export const Sequence = new class {
       const timer = this.#newTimer();
       timer.label = label;
       timer.type = type;
-      timer.time = Number(time);
 
       this.#sequencer.appendChild(timer);
+      timer.time = Number(time);
     }
 
     // select last
@@ -151,16 +161,19 @@ export const Sequence = new class {
   }
 
   #initEvents() {
-    // change sequence execution count
-    const executeFrame = /** @type {HTMLButtonElement} */ (document.getElementById('executeFrame'))
-    executeFrame.addEventListener('wheel', (e) => {
-      this.totalExecutions += Math.sign(e.deltaY);
-    });
+    disableSaveButton( this.#sequenceInputElement.value.trim() === '' );
+    this.#updateEstimatedTime();
+
+    // update sequence title
+    this.#sequenceInputElement.oninput = () => {
+      this.title = this.#sequenceInputElement.value;
+    };
 
     // display overlay and start sequence
-    const startSequenceBtn = /** @type {HTMLButtonElement} */ (document.getElementById('startSequenceBtn'))
-    startSequenceBtn.onclick = () => Overlay.playSequence( this.exportSequence() );
+    const startButton = /** @type {HTMLButtonElement} */ (document.getElementById('startSequence'));
+    startButton.onclick = () => Overlay.playSequence( this.exportSequence() );
 
     addEventListener('timerUpdated', () => this.#updateEstimatedTime() );
+    this.#executionInputElement.onValueChange = () => this.#updateEstimatedTime();
   }
 }

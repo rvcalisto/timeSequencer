@@ -20,7 +20,7 @@ export const Overlay = new class {
   #ctrlBtnPrev     = /** @type {HTMLButtonElement} */ (document.getElementById('ctrlPrev'));
   #ctrlBtnToggle   = /** @type {HTMLButtonElement} */ (document.getElementById('ctrlToggle'));
   #ctrlBtnAdd      = /** @type {HTMLButtonElement} */ (document.getElementById('ctrlAdd'));
-  #overlayCloseBtn = /** @type {HTMLButtonElement} */ (document.getElementById('overlayCloseBtn'));
+  #overlayCloseBtn = /** @type {HTMLButtonElement} */ (document.getElementById('closeOverlay'));
   #overlayElement  = /** @type {HTMLDivElement}    */ (document.getElementById('overlay'));
 
   #checkoutIcon = 'timeout';

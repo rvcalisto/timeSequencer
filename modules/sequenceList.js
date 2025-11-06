@@ -4,7 +4,7 @@ import { getSequences, removeSequence, storeSequence } from "./sequenceStorage.j
 
 
 const listElement = /** @type {HTMLDivElement} */ (document.getElementById('sequenceList'));
-const saveElement = /** @type {HTMLButtonElement} */ (document.getElementById('sequenceSave'));
+const saveElement = /** @type {HTMLButtonElement} */ (document.getElementById('saveSequence'));
 
 
 /**
@@ -15,21 +15,26 @@ function populateSequences() {
   listElement.textContent = '';
 
   for (const entry of sequenceTitles) {
-    const btn = document.createElement('button');
-    btn.textContent = entry;
-    btn.style.background = '#333333';
-    btn.style.borderColor = '#111111';
-    btn.title = 'Load sequence. Right-click to remove';
+    const element = document.createElement('div');
+    element.title = 'Load sequence';
 
-    btn.onclick = () => loadSequence(entry);
+    const label = document.createElement('p');
+    label.textContent = entry;
 
-    btn.oncontextmenu = () => {
+    const removeButton = document.createElement('button');
+    removeButton.title = 'Remove sequence from list';
+    removeButton.textContent = '❌';
+
+    element.onclick = () => loadSequence(entry);
+
+    removeButton.onclick = () => {
       removeSequence(entry);
       populateSequences();
       return false;
     };
 
-    listElement.appendChild(btn);
+    element.append(label, removeButton);
+    listElement.appendChild(element);
   }
 }
 
@@ -58,6 +63,14 @@ function loadSequence(loadName) {
     Sequence.importSequence(loadName, sequence);
     console.log(`loaded timer items from ${loadName}`);
   }
+}
+
+/**
+ * Toggle sequence save button.
+ * @param {boolean} [disable=true] Either to disable button.
+ */
+export function disableSaveButton(disable = true) {
+  saveElement.disabled = disable;
 }
 
 function initialize() {

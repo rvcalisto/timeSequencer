@@ -1,5 +1,6 @@
 // @ts-check
 import { secondsToHMS, secondsToHMSshort } from "./timeUtils.js";
+import { NumericInput } from "./numericInput.js";
 
 
 /**
@@ -8,16 +9,16 @@ import { secondsToHMS, secondsToHMSshort } from "./timeUtils.js";
 
 
 /**
- * Tag element to visualize and configure timer sequence prior to executing it.
+ * Sequence Timer custom element.
  */
 export class Timer extends HTMLElement {
 
   static #nextIdx = 0;
 
-  /**
-   * @type {ShadowRoot}
-   */
-  #shadowRoot;
+  /** @type {ShadowRoot}   */ #shadowRoot;
+  /** @type {NumericInput} */ #editorHour;
+  /** @type {NumericInput} */ #editorMin;
+  /** @type {NumericInput} */ #editorSec;
 
   /**
    * Timer label.
@@ -29,11 +30,6 @@ export class Timer extends HTMLElement {
    * @type {TimerCounter}
    */
   type = 'Count-Down';
-
-  /**
-   * Timer total value.
-   */
-  time = 5;
 
   /**
    * On element selection.
@@ -58,11 +54,14 @@ export class Timer extends HTMLElement {
   }
 
   connectedCallback() {
-    const template = /** @type {HTMLTemplateElement} */ (document.getElementById('timerTemplate'));
+    const template = /** @type {HTMLTemplateElement} */ (document.querySelector('#timerTemplate'));
     this.#shadowRoot = this.attachShadow({ mode: "open" });
     this.#shadowRoot.appendChild( template.content.cloneNode(true) );
 
-    this.#updateElement();
+    this.#editorHour = /** @type {NumericInput} */ (this.#shadowRoot.querySelector('#editorHour'));
+    this.#editorMin = /** @type {NumericInput} */ (this.#shadowRoot.querySelector('#editorMin'));
+    this.#editorSec = /** @type {NumericInput} */ (this.#shadowRoot.querySelector('#editorSec'));
+
     this.#updateEditor();
     this.#initEvents();
   }
@@ -72,78 +71,24 @@ export class Timer extends HTMLElement {
   }
 
   /**
-   * Initialize input event listeners.
+   * Total timer value.
+   * @param {number} seconds
    */
-  #initEvents() {
-    this.onclick = () => {
-      if (this.onSelect != null)
-        this.onSelect();
-    };
+  set time(seconds) {
+    const [ hh, mm, ss ] = secondsToHMS(seconds).split(':');
 
-    const addBtn = /** @type {HTMLButtonElement} */ (this.#shadowRoot.querySelector('.addNew'));
-    addBtn.onclick = (e) => {
-      e.stopPropagation()
-      if (this.onAddNew != null)
-        this.onAddNew();
-    };
+    this.#editorHour.value = Number(hh);
+    this.#editorMin.value = Number(mm);
+    this.#editorSec.value = Number(ss);
 
-    const delBtn = /** @type {HTMLButtonElement} */ (this.#shadowRoot.querySelector('.remove'));
-    delBtn.onclick = (e) => {
-      e.stopPropagation()
-      if (this.onRemove != null)
-        this.onRemove();
-    };
+    this.#updateInfo();
+    dispatchEvent( new CustomEvent('timerUpdated') );
+  }
 
-    const inputType = /** @type {HTMLSelectElement} */ (this.#shadowRoot.querySelector('#editorType'));
-    inputType.onchange = () => {
-      this.type = /** @type {TimerCounter} */ (inputType.value);
-
-      // set time to zero if counting up, 5s otherwise
-      if (this.type == 'Count-Up')
-        this.time = 0;
-      else if (this.time == 0)
-        this.time = 5;
-
-      this.#updateEditor();
-      this.#updateElement();
-    };
-
-    const labelInput = /** @type {HTMLInputElement} */ (this.#shadowRoot.querySelector('#editorLabel'));
-    labelInput.oninput = () => {
-      this.label = labelInput.value;
-      this.#updateElement();
-    };
-
-    const updateTimeByValue = (/** @type {number} */ value) => {
-      const newTime = this.time + value;
-
-      // clamp time based on type
-      if (this.type == 'Count-Up')
-        this.time = Math.max(0, 0);
-      else
-        this.time = Math.max(1, newTime);
-
-      this.#updateElement();
-      this.#updateEditor();
-    };
-
-    const editorHour = /** @type {HTMLLabelElement} */ (this.#shadowRoot.querySelector('#editorHour'));
-    editorHour.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      updateTimeByValue(e.deltaY < 0 ? 3600 : -3600);
-    });
-
-    const editorMin = /** @type {HTMLLabelElement} */ (this.#shadowRoot.querySelector('#editorMin'));
-    editorMin.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      updateTimeByValue(e.deltaY < 0 ? 60 : -60);
-    });
-
-    const editorSec = /** @type {HTMLLabelElement} */ (this.#shadowRoot.querySelector('#editorSec'));
-    editorSec.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      updateTimeByValue(e.deltaY < 0 ? 1 : -1);
-    });
+  get time() {
+    return this.#editorHour.value * 3600
+         + this.#editorMin.value * 60
+         + this.#editorSec.value;
   }
 
   /**
@@ -156,35 +101,83 @@ export class Timer extends HTMLElement {
     typeInput.value = this.type;
     labelInput.value = this.label;
 
-    const [ hh, mm, ss ] = secondsToHMS(this.time).split(':');
-    
-    const editorHour = /** @type {HTMLLabelElement} */ (this.#shadowRoot.querySelector('#editorHour'));
-    editorHour.textContent = hh;
-    
-    const editorMin = /** @type {HTMLLabelElement} */ (this.#shadowRoot.querySelector('#editorMin'));
-    editorMin.textContent = mm;
-    
-    const editorSec = /** @type {HTMLLabelElement} */ (this.#shadowRoot.querySelector('#editorSec'));
-    editorSec.textContent = ss;
+    // set time to zero if counting up, 5s otherwise
+    this.#editorHour.max = this.type == 'Count-Up' ? 0 : 99;
+    this.#editorMin.max  = this.type == 'Count-Up' ? 0 : 59;
+    this.#editorSec.max  = this.type == 'Count-Up' ? 0 : 59;
+    this.time            = this.type == 'Count-Up' ? 0 : 5;
 
+    this.#updateInfo();
     dispatchEvent( new CustomEvent('timerUpdated') );
   }
 
   /**
    * Update label elements to reflect property values.
    */
-  #updateElement() {
+  #updateInfo() {
     const timerInfo = /** @type {HTMLDivElement} */ (this.#shadowRoot.querySelector('#timerInfo'));
-    const [ label, type, time ] = /** @type {HTMLLabelElement[]} */ ([...timerInfo.children]);
+    const [ label, type, time ] = /** @type {HTMLParagraphElement[]} */ ([...timerInfo.children]);
 
     label.textContent = this.label;
     type.textContent = this.type;
     time.textContent = secondsToHMSshort(this.time);
 
-    const icon = this.type == 'Count-Up'
+    const icon = this.type === 'Count-Up'
       ? 'clockUp'
       : 'clockDown';
 
     timerInfo.style.backgroundImage = `url(icons/${icon}.webp)`;
+  }
+
+  /**
+   * Initialize input event listeners.
+   */
+  #initEvents() {
+    // select on click
+    this.onclick = () => {
+      if (this.onSelect != null)
+        this.onSelect();
+    };
+
+    // add new instance
+    const addBtn = /** @type {HTMLButtonElement} */ (this.#shadowRoot.querySelector('.addNew'));
+    addBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (this.onAddNew != null)
+        this.onAddNew();
+    };
+
+    // remove itself
+    const delBtn = /** @type {HTMLButtonElement} */ (this.#shadowRoot.querySelector('.remove'));
+    delBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (this.onRemove != null)
+        this.onRemove();
+    };
+
+    // change timer type
+    const inputType = /** @type {HTMLSelectElement} */ (this.#shadowRoot.querySelector('#editorType'));
+    inputType.onchange = () => {
+      this.type = /** @type {TimerCounter} */ (inputType.value);
+      this.#updateEditor();
+      this.#updateInfo();
+    };
+
+    // change timer label
+    const labelInput = /** @type {HTMLInputElement} */ (this.#shadowRoot.querySelector('#editorLabel'));
+    labelInput.oninput = () => {
+      this.label = labelInput.value;
+      this.#updateInfo();
+    };
+
+    const onTimeElementChange = () => {
+      this.#updateInfo();
+      dispatchEvent( new CustomEvent('timerUpdated') );
+    }
+
+    // signal time update
+    this.#editorHour.onValueChange
+      = this.#editorMin.onValueChange
+      = this.#editorSec.onValueChange = onTimeElementChange;
   }
 }
