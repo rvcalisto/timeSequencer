@@ -2,106 +2,90 @@
 import { secondsToHMSshort } from "./timeUtils.js";
 
 
+const containerElement = /** @type {HTMLDivElement} */ (document.getElementById('overlayHist'));
+let checkInTime = 0;
+let checkOutTime = 0;
+
+
 /**
- * Logs timer life-cycle events.
+ * Register timer-start on timer history.
  */
-export const TimerHistory = new class {
+export function checkInTimerHistory() {
+  checkInTime = Date.now();
 
-  #historyDiv = /** @type {HTMLDivElement} */ (document.getElementById('overlayHist'));
+  // add deadtime if space between checkin and last checkout
+  if (containerElement.lastChild && checkInTime != checkOutTime)
+    addDeadTime(checkOutTime, checkInTime);
+}
 
-  /** @type {number} */ #checkinTime;
-  /** @type {number} */ #checkoutTime
+/**
+ * Register timer-end on timer history.
+ * @param {string} label Timer counter state descriptor.
+ * @param {string} icon Custom icon.
+ */
+export function checkOutTimerHistory(label, icon) {
+  const nextCheckoutTime = Date.now();
 
-  constructor() {
-    this.#checkinTime = 0;
-    this.#checkoutTime = 0;
+  // if no checkin has been made (checkinTime is -1), add deadtime
+  if (checkInTime === -1 && checkOutTime != nextCheckoutTime) {
+    addDeadTime(checkOutTime, nextCheckoutTime);
+    checkInTime = nextCheckoutTime;
   }
 
-  /**
-   * Register timer-start on timer history.
-   */
-  checkinTimer() {
-    this.#checkinTime = Date.now()
+  checkOutTime = nextCheckoutTime;
 
-    // add deadtime if space between checkin and last checkout
-    if (this.#historyDiv.lastChild && this.#checkinTime != this.#checkoutTime) {
-      this.#addDeadTime(this.#checkoutTime, this.#checkinTime)
-    }
+  const checkinHMS = new Date(checkInTime).toString().split(' ')[4];
+  const checkoutHMS = new Date(checkOutTime).toString().split(' ')[4];
 
-  }
+  const delta = (checkOutTime - checkInTime) / 1000;
+  const HMS = secondsToHMSshort(delta);
+  const timeSession = `${checkinHMS} - ${checkoutHMS} (${HMS})`;
 
-  /**
-   * Register timer-end on timer history.
-   * @param {string} label Timer counter state descriptor.
-   * @param {string} icon Custom icon.
-   */
-  checkoutTimer(label, icon) {
-    const nextCheckoutTime = Date.now()
-    
-    // if no checkin has been made (checkinTime is -1), add deadtime
-    if (this.#checkinTime === -1 && this.#checkoutTime != nextCheckoutTime) {
-      this.#addDeadTime(this.#checkoutTime, nextCheckoutTime)
-      this.#checkinTime = nextCheckoutTime
-    }
+  // log element and close check-in
+  addElement(`${label}\n${timeSession}`, icon);
+  checkInTime = -1;
+}
 
-    this.#checkoutTime = nextCheckoutTime
+/**
+ * Clear timer logs.
+ */
+export function clearTimerHistory() {
+  containerElement.textContent = '';
+  checkInTime = 0;
+  checkOutTime = 0;
+}
 
-    const checkinHour = new Date(this.#checkinTime).toString().split(' ')[4]
-    const checkoutHour = new Date(this.#checkoutTime).toString().split(' ')[4]
+/**
+ * Log new entry to history.
+ * @param {string} text Entry text content.
+ * @param {string} icon Entry icon.
+ */
+function addElement(text, icon) {
+  const element = document.createElement('p');
+  element.setAttribute('icon', icon);
+  element.textContent = text;
+  
+  containerElement.append(element);
+  element.scrollIntoView({ behavior: 'smooth' });
+}
 
-    const delta = ( this.#checkoutTime - this.#checkinTime ) / 1000
-    const HMS = secondsToHMSshort(delta)
-    const timeSession = `${checkinHour} - ${checkoutHour} (${HMS})`
+/**
+ * Register period of inactivity on timer history.
+ * @param {number} fromDate Start Date value.
+ * @param {number} toDate End Date value.
+ */
+function addDeadTime(fromDate, toDate) {
+  if (containerElement.lastElementChild == null)
+    return;
 
-    
-    const timerEntry = document.createElement('p')
-    timerEntry.textContent = label
-    timerEntry.textContent += `\n${timeSession}`
-    
-    // temporary workaround till a better implementation
-    timerEntry.setAttribute('icon', icon)
-    this.nextIcon = ''
+  const fromHMS = new Date(fromDate).toString().split(' ')[4];
+  const toHMS = new Date(toDate).toString().split(' ')[4];
 
-    this.#checkinTime = -1 // close checkin
-    this.#historyDiv.append(timerEntry)
-    timerEntry.scrollIntoView({ behavior: 'smooth' })
-  }
+  if (fromHMS !== toHMS) {
+    const delta = (toDate - fromDate) / 1000;
+    const duration = secondsToHMSshort(delta);
 
-  /**
-   * Register period of inactivity on timer history.
-   * @param {number} fromDate Start Date value.
-   * @param {number} toDate End Date value.
-   */
-  #addDeadTime(fromDate, toDate) {
-    const previousEntry = this.#historyDiv.lastElementChild
-    if (!previousEntry) return
-    
-    let delta = ( toDate - fromDate) / 1000
-    delta = Number(delta.toFixed(0))
-
-    const formattedFromTime = new Date(fromDate).toString().split(' ')[4]
-    const formattedToTime = new Date(toDate).toString().split(' ')[4]
-    
-    if (formattedFromTime === formattedToTime) return
-
-    const deltaEntry = document.createElement('p')
-    deltaEntry.style.background = 'none'
-    deltaEntry.style.boxShadow = 'none'
-    deltaEntry.setAttribute('icon', 'deadtime')
-
-    const duration = secondsToHMSshort(delta)
-
-    deltaEntry.textContent = `Dead time\n${formattedFromTime} - ${formattedToTime} (${duration})`
-    this.#historyDiv.append(deltaEntry)
-    deltaEntry.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  /**
-   * Clear timer logs.
-   */
-  clear() {
-    this.#historyDiv.textContent = ''
-    this.#checkinTime = 0
-    this.#checkoutTime = 0
+    const text = `Dead time\n${fromHMS} - ${toHMS} (${duration})`;
+    addElement(text, 'deadtime');
   }
 }

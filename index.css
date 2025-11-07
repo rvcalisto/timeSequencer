@@ -266,11 +266,21 @@ button {
       align-items: center;
       padding: .5em 1em;
       margin: .4rem;
-      border-radius: 0.5em;
+      margin-top: 0;
+      border-radius: 0.3em;
 
       word-break: break-all;
       white-space: pre-line;
       box-shadow: 0px 2px 8px 0px black;
+
+      &:first-child {
+        margin-top: .4rem;
+      }
+
+      &[icon=deadtime] {
+        background: none;
+        box-shadow: none;
+      }
     }
   }
 
@@ -324,7 +334,6 @@ button {
   #closeOverlay {
     right: 0px;
     position: fixed;
-    font-size: x-large;
     margin: 1rem;
     background: #3a3a3a;
     border-color: #0c0c0c;

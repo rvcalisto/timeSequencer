@@ -1,7 +1,7 @@
 // @ts-check
 import { Sequence } from "./sequence.js";
 import { SequencePlayer } from "./sequencePlayer.js";
-import { TimerHistory } from "./timerHistory.js";
+import { checkInTimerHistory, checkOutTimerHistory, clearTimerHistory } from "./timerHistory.js";
 import { secondsToHMS, secondsToHMSshort } from "./timeUtils.js";
 
 
@@ -69,7 +69,7 @@ export const Overlay = new class {
     } else {
       document.title = 'Time Sequencer';
       this.#audioPlayer.pause();
-      TimerHistory.clear();
+      clearTimerHistory();
     }
 
     this.#overlayElement.animate([
@@ -119,7 +119,7 @@ export const Overlay = new class {
       : `${secondsToHMSshort(info.timerTotal - info.timerValue)} of ${secondsToHMSshort(info.timerTotal)}`;
 
     const label = `${info.timerLabel}\n${progress}`;
-    TimerHistory.checkoutTimer(label, this.#checkoutIcon);
+    checkOutTimerHistory(label, this.#checkoutIcon);
   }
 
   #updateControls() {
@@ -147,7 +147,7 @@ export const Overlay = new class {
 
   #onStart() {
     this.#checkoutIcon = 'timeout';
-    TimerHistory.checkinTimer();
+    checkInTimerHistory();
 
     const info = this.#sequencePlayer.info;
 
