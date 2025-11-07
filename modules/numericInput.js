@@ -57,6 +57,20 @@ export class NumericInput extends HTMLElement {
     return Math.min( this.max, Math.max(this.min, value) );
   }
 
+  /**
+   * Focus next numeric input element sibling.
+   */
+  #focusNextSibling() {
+    if (this.parentElement == null)
+      return;
+
+    const siblings = [...this.parentElement.querySelectorAll('numeric-input')];
+    const idx = siblings.indexOf(this);
+
+    if (idx >= 0 && siblings[idx + 1] != null)
+      /** @type {NumericInput} */ (siblings[idx + 1]).#inputElement.focus();
+  }
+
   connectedCallback() {
     this.#inputElement = document.createElement('input');
     this.#inputElement.type = 'number';
@@ -87,14 +101,18 @@ export class NumericInput extends HTMLElement {
 
     // force loss of focus on confirm
     this.#inputElement.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter')
+      if (e.key === 'Enter') {
         this.#inputElement.blur();
+        this.#focusNextSibling();
+      }
     });
 
     // force loss of focus on input limit
     this.#inputElement.addEventListener('input', () => {
-      if (this.#inputElement.value.length > 1)
+      if (this.#inputElement.value.length > 1) {
         this.#inputElement.blur();
+        this.#focusNextSibling();
+      }
     });
 
     // change sequence execution count
